@@ -51,7 +51,7 @@ public class ContourPipeline extends OpenCvPipeline {
     private final Mat mat = new Mat();
     private final Mat processed = new Mat();
 
-    private Rect maxRect = new Rect(600,1,1,1);
+    private Rect maxRect = new Rect(2300,1,1,1);
 
     private double maxArea = 0;
     private boolean first = false;

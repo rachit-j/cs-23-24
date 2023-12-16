@@ -43,8 +43,8 @@ public class odometry implements Runnable {
         oldAuxPos = currentAuxPos;
         oldIMU = currentIMU;
 
-        currentLeftPos = encoderLeft.getCurrentPosition();
-        currentRightPos = -encoderRight.getCurrentPosition();
+        currentLeftPos = -encoderLeft.getCurrentPosition();
+        currentRightPos = encoderRight.getCurrentPosition();
         currentAuxPos = -encoderAux.getCurrentPosition();
         currentIMU = getAngle();
 

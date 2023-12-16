@@ -1,18 +1,16 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.odometry;
 import org.opencv.core.Scalar;
@@ -22,22 +20,17 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 
-@Autonomous(name="Blue Right", group="Autonomous")
-public class BlueRight extends LinearOpMode {
+@Autonomous(name="Blue Left", group="Autonomous")
+public class blueleft extends LinearOpMode {
 
     private PIDController movePID;
     public static double p = 0.15, i = 0.5, d = 0.00000001; //0.15, 0.5, 8 0s 8
 
     private OpenCvCamera webcam;
 
-    //Old Resolutions
-    /*
-    private static final int CAMERA_WIDTH  = 640; // width  of wanted camera resolution
-    private static final int CAMERA_HEIGHT = 360; // height of wanted camera resolution
-    */
-
     private static final int CAMERA_WIDTH  = 2304; // width  of wanted camera resolution
     private static final int CAMERA_HEIGHT = 1536; // height of wanted camera resolution
+
     private double CrLowerUpdate = 160;
     private double CbLowerUpdate = 100;
     private double CrUpperUpdate = 255;
@@ -69,40 +62,49 @@ public class BlueRight extends LinearOpMode {
     // UNITS ARE PIXELS
     // NOTE: this calibration is for the C920 webcam at 800x448.
     // You will need to do your own calibration for other configurations!
-    double fx = 1387.85;
-    double fy = 1394.05;
-    double cx = 965.15;
-    double cy = 533.992122;
+    double fx = 578.272;
+    double fy = 578.272;
+    double cx = 402.145;
+    double cy = 221.506;
 
-    // UNITS ARE METERS
-    double tagsize = 0.508; //Double check!!
-
-    AprilTagDetection tagOfInterest = null;
 
     private static double maxpowermove = 0.6;
     private static double maxpowerstay = 0.6;
+    private static double maxpowerturn = 0.5;
 
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor fl = null;
     private DcMotor fr = null;
     private DcMotor bl = null;
     private DcMotor br = null;
-
-    private DcMotor arm = null;
+    private DcMotor leftlift = null;
+    private DcMotor rightlift = null;
 
     Servo wrist;
     Servo leftclaw;
     Servo rightclaw;
+    Servo lefthang;
+    Servo righthang;
 
-    // Set where we want the robot to go
-    public boolean LEFT_DETECT = false;
-    public boolean MIDDLE_DETECT = false;
-    public boolean RIGHT_DETECT = false;
-
-    DcMotor verticalLeft, verticalRight, horizontal;
     IMU imu;
+    DcMotor verticalLeft, verticalRight, horizontal;
     final double COUNTS_PER_INCH = 1860;
     odometry update;
+
+    double clawclosevalue = 0.51;
+    double clawopenvalue = 0.41;
+    double linkagedownvalue = 0.53;
+    double linkageupvalue = 0.08;
+    double liftuppower = 0.8;
+    double liftdownpower = 0.5;
+
+    int liftupposition = 1500;
+    int liftmidposition = 1000;
+    int liftdownposition = 500;
+
+
+
+
 
     @Override
     public void runOpMode() {
@@ -123,24 +125,32 @@ public class BlueRight extends LinearOpMode {
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
-        arm = hardwareMap.get(DcMotor.class, "arm");
+        leftlift = hardwareMap.get(DcMotor.class, "leftlift");
+        rightlift = hardwareMap.get(DcMotor.class, "rightlift");
 
         wrist = hardwareMap.get(Servo.class, "wrist");
         leftclaw = hardwareMap.get(Servo.class, "leftclaw");
         rightclaw = hardwareMap.get(Servo.class, "rightclaw");
+        lefthang = hardwareMap.get(Servo.class, "lefthang");
+        righthang = hardwareMap.get(Servo.class, "righthang");
+
+        righthang.setDirection(Servo.Direction.REVERSE);
+
+        rightclaw.setDirection(Servo.Direction.REVERSE);
+
+        RobotHardware robot = new RobotHardware(fl, fr, bl, br, leftlift, rightlift);
+        robot.innitHardwareMap();
+
 
         //odometers
         verticalLeft = hardwareMap.dcMotor.get("fl");
         verticalRight = hardwareMap.dcMotor.get("br");
         horizontal = hardwareMap.dcMotor.get("fr");
 
-        RobotHardware robot = new RobotHardware(fl, fr, bl, br, arm);
-        robot.innitHardwareMap();
-
-        leftclaw.setPosition(0.4);
-        rightclaw.setPosition(0.49);
-        wrist.setPosition(0.9);
-
+        //start odometry thread
+        update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
+        Thread positionThread = new Thread(update);
+        positionThread.start();
 
         //start of camera code
         // OpenCV webcam
@@ -168,28 +178,45 @@ public class BlueRight extends LinearOpMode {
             }
         });
 
+        telemetry.update();
+        leftclaw.setPosition(clawclosevalue);
+        rightclaw.setPosition(clawclosevalue);
+        wrist.setPosition(linkagedownvalue);
 
+//        double rectMidpointX = myPipeline.getRectMidpointX();
+//        double screenThird = CAMERA_WIDTH / 3.0;
+//
+//        if (rectMidpointX > 2 * screenThird) {
+//            telemetry.addLine("OBJECT IS ON THE RIGHT SIDE");
+//        } else if (rectMidpointX > screenThird) {
+//            telemetry.addLine("OBJECT IS IN THE MIDDLE");
+//        } else {
+//            telemetry.addLine("OBJECT IS ON THE LEFT SIDE");
+//        }
+
+        telemetry.update();
+
+        // Camera Stuff
+        myPipeline.configureBorders(borderLeftX, borderRightX, borderTopY, borderBottomY);
+        if(myPipeline.error){
+            telemetry.addData("Exception: ", myPipeline.debug);
+        }
+        telemetry.addData("RectArea: ", myPipeline.getRectArea());
         telemetry.update();
 
         waitForStart();
         imu.resetYaw();
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-
-        //start odometry thread
-        update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
-        Thread positionThread = new Thread(update);
-        positionThread.start();
-
         resetRuntime();
-        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+
 
 
         //start of auto
         while(opModeIsActive()){
 
-            arm.setTargetPosition(50);
-            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            arm.setPower(0.8);
+
             // Camera Stuff
             myPipeline.configureBorders(borderLeftX, borderRightX, borderTopY, borderBottomY);
             if(myPipeline.error){
@@ -201,27 +228,44 @@ public class BlueRight extends LinearOpMode {
             telemetry.addData("RectArea: ", myPipeline.getRectArea());
             telemetry.update();
 
-            if(myPipeline.getRectArea() > 2000){
-                double rectMidpointX = myPipeline.getRectMidpointX();
-                double screenThird = CAMERA_WIDTH / 3.0;
+            leftlift.setTargetPosition(25);
+            rightlift.setTargetPosition(25);
+            leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftlift.setPower(liftuppower);
+            rightlift.setPower(liftuppower);
 
-                if(rectMidpointX > 2 * screenThird){
-                    telemetry.addLine("OBJECT IS ON THE RIGHT SIDE");
-                    AUTONOMOUS_C();
-                }
-                else if(rectMidpointX > screenThird){
-                    telemetry.addLine("OBJECT IS IN THE MIDDLE");
-                    AUTONOMOUS_B();
-                }
-                else {
-                    telemetry.addLine("OBJECT IS ON THE LEFT SIDE");
-                    AUTONOMOUS_A();
-                }
+            double rectMidpointX = myPipeline.getRectMidpointX();
+            double screenThird = CAMERA_WIDTH / 3.0;
+
+            if(rectMidpointX > 2 * screenThird){
+                telemetry.addLine("OBJECT IS ON THE RIGHT SIDE");
+                AUTONOMOUS_C();
             }
+            else if(rectMidpointX > screenThird){
+                telemetry.addLine("OBJECT IS IN THE MIDDLE");
+                AUTONOMOUS_B();
+            }
+            else {
+                telemetry.addLine("OBJECT IS ON THE LEFT SIDE");
+                AUTONOMOUS_A();
+            }
+            telemetry.update();
+
+            runtime.reset();
+            while (runtime.seconds() < 0.5) {
+                rightclaw.setPosition(clawopenvalue);
+            }
+            moveTo(20, -19, -90, 8);
+            moveTo(20, -19, 0, 3);
+            wrist.setPosition(linkagedownvalue);
+            leftlift.setTargetPosition(0);
+            leftlift.setPower(liftdownpower);
+            rightlift.setTargetPosition(0);
+            rightlift.setPower(liftdownpower);
+            moveTo(40, 0, 90, 0);
 
         }
-
-
 
     }
 
@@ -259,11 +303,11 @@ public class BlueRight extends LinearOpMode {
                 y = -maxpowermove;
             }
             else y = y;
-            if (turn > 0.3) {
-                turn = 0.3;
+            if (turn > maxpowerturn) {
+                turn = maxpowerturn;
             }
-            else if (turn < -0.3) {
-                turn = -0.3;
+            else if (turn < -maxpowerturn) {
+                turn = -maxpowerturn;
             }
             else turn = turn;
             double l = y * Math.sin(theta + (Math.PI/4)) - x * Math.sin(theta - (Math.PI/4));
@@ -299,11 +343,11 @@ public class BlueRight extends LinearOpMode {
             y = -maxpowerstay;
         }
         else y = y;
-        if (turn > 0.3) {
-            turn = 0.3;
+        if (turn > maxpowerturn) {
+            turn = maxpowerturn;
         }
-        else if (turn < -0.3) {
-            turn = -0.3;
+        else if (turn < -maxpowerturn) {
+            turn = -maxpowerturn;
         }
         else turn = turn;
 
@@ -353,130 +397,88 @@ public class BlueRight extends LinearOpMode {
 
     public void AUTONOMOUS_A(){
         telemetry.addLine("Autonomous A");
-        moveTo(-6, -27, -90, 3); // move to detection area
-
         runtime.reset();
-        while (runtime.seconds() < 2 && opModeIsActive()) {
-            stay(3, -27, -90);
+        while (runtime.seconds() < 3) {
+            stay(23, -24, 90);
         }
         runtime.reset();
-        while (runtime.seconds() < 1 && opModeIsActive()) {
-            rightclaw.setPosition(0.34); //right claw open
+        while (runtime.seconds() < 0.5) {
+            leftclaw.setPosition(clawopenvalue);
         }
-        moveTo(-3, -54, 90, 5); // move past detection area
-        moveTo(45, -56, 90, 8); // Move past bar
-        arm.setTargetPosition(1500);
-        moveTo(60, -25, 90, 5); // Move to backboard
-
-        wrist.setPosition(0.6);
-        rightclaw.setPosition(0.49);
-
-
+        moveTo(28, -24, 90, 3);
         runtime.reset();
-        while (runtime.seconds() < 3 && opModeIsActive()) {
-            stay(78, -18, 90); // deposit
+        while (runtime.seconds() < 3) {
+            stay(32, -12, -90);
+            leftlift.setTargetPosition(350);
+            rightlift.setTargetPosition(350);
+            leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftlift.setPower(liftuppower);
+            rightlift.setPower(liftuppower);
+            wrist.setPosition(linkageupvalue);
         }
-
         runtime.reset();
-        while (runtime.seconds() < 1 && opModeIsActive()) { //deposit
-            leftclaw.setPosition(0.55);
+        while (runtime.seconds() < 2) {
+            stay(37, -12, -90);
         }
-
-        runtime.reset();
-        while (runtime.seconds() < 30 && opModeIsActive()) {
-            stay(84, -50, 90); // Park
-            arm.setTargetPosition(50);
-            wrist.setPosition(0.9);
-            leftclaw.setPosition(0.4);
-        }
-
-
 
     }
     public void AUTONOMOUS_B(){
         telemetry.addLine("Autonomous B");
-        moveTo(-12, -37, -90, 3); // move to detection area
-
         runtime.reset();
-        while (runtime.seconds() < 2 && opModeIsActive()) {
-            stay(-12, -37, -90);
+        while (runtime.seconds() < 3) {
+            stay(18, -34, 90);
         }
         runtime.reset();
-        while (runtime.seconds() < 1 && opModeIsActive()) {
-            rightclaw.setPosition(0.34); //right claw open
+        while (runtime.seconds() < 0.5) {
+            leftclaw.setPosition(clawopenvalue);
         }
-        moveTo(-20, -37, -90, 3);
-        moveTo(-20, -50, -90, 3);
-
-        moveTo(45, -56, 90, 8); // Move past bar
-        arm.setTargetPosition(1500);
-        moveTo(60, -25, 90, 5); // Move to backboard
-
-        wrist.setPosition(0.6);
-        rightclaw.setPosition(0.49);
-
-
+        moveTo(23, -32, 90, 3);
         runtime.reset();
-        while (runtime.seconds() < 3 && opModeIsActive()) {
-            stay(78, -25, 90); // deposit
+        while (runtime.seconds() < 3) {
+            stay(32, -19, -90);
+            leftlift.setTargetPosition(350);
+            rightlift.setTargetPosition(350);
+            leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftlift.setPower(liftuppower);
+            rightlift.setPower(liftuppower);
+            wrist.setPosition(linkageupvalue);
+        }
+        runtime.reset();
+        while (runtime.seconds() < 2) {
+            stay(37, -19, -90);
         }
 
-        runtime.reset();
-        while (runtime.seconds() < 1 && opModeIsActive()) { //deposit
-            leftclaw.setPosition(0.55);
-        }
-
-        runtime.reset();
-        while (runtime.seconds() < 30 && opModeIsActive()) {
-            stay(84, -50, 90); // Park
-            arm.setTargetPosition(50);
-            wrist.setPosition(0.9);
-            leftclaw.setPosition(0.4);
-        }
 
     }
     public void AUTONOMOUS_C(){
         telemetry.addLine("Autonomous C");
-        moveTo(-21, -25, -90, 3); // move to detection area
-
+        moveTo(6, -24, 90, 8);
         runtime.reset();
-        while (runtime.seconds() < 2 && opModeIsActive()) {
-            stay(-21, -25, -90);
+        while (runtime.seconds() < 3) {
+            stay(0, -24, 90);
         }
         runtime.reset();
-        while (runtime.seconds() < 1 && opModeIsActive()) {
-            rightclaw.setPosition(0.34); //right claw open
+        while (runtime.seconds() < 0.5) {
+            leftclaw.setPosition(clawopenvalue);
         }
-        moveTo(-25, -25, -90, 3);
-        moveTo(-25, -50, 0, 3);
-
-        moveTo(45, -56, 90, 8); // Move past bar
-        arm.setTargetPosition(1500);
-        moveTo(60, -30, 90, 5); // Move to backboard
-
-        wrist.setPosition(0.6);
-        rightclaw.setPosition(0.49);
-
-
+        moveTo(1, -24, 90, 3);
         runtime.reset();
-        while (runtime.seconds() < 3 && opModeIsActive()) {
-            stay(78, -32, 90); // deposit
+        while (runtime.seconds() < 3) {
+            stay(32, -25, -90);
+            leftlift.setTargetPosition(350);
+            rightlift.setTargetPosition(350);
+            leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftlift.setPower(liftuppower);
+            rightlift.setPower(liftuppower);
+            wrist.setPosition(linkageupvalue);
         }
-
         runtime.reset();
-        while (runtime.seconds() < 1 && opModeIsActive()) { //deposit
-            leftclaw.setPosition(0.55);
+        while (runtime.seconds() < 2) {
+            stay(37, -25, -90);
         }
-
-        runtime.reset();
-        while (runtime.seconds() < 30 && opModeIsActive()) {
-            stay(84, -50, 90); // Park
-            arm.setTargetPosition(50);
-            wrist.setPosition(0.9);
-            leftclaw.setPosition(0.4);
-        }
-
-
 
     }
 }
