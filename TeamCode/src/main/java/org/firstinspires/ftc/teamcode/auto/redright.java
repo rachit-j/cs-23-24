@@ -410,7 +410,7 @@ public class redright extends LinearOpMode {
         moveTo(-1, -24, -90, 3);
         runtime.reset();
         while (runtime.seconds() < 3) {
-            stay(-32, -27, 90);
+            stay(-32, -28, 90);
             leftlift.setTargetPosition(350);
             rightlift.setTargetPosition(350);
             leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -421,7 +421,7 @@ public class redright extends LinearOpMode {
         }
         runtime.reset();
         while (runtime.seconds() < 2) {
-            stay(-37, -27, 90);
+            stay(-37, -28, 90);
         }
 
 
@@ -430,7 +430,7 @@ public class redright extends LinearOpMode {
         telemetry.addLine("Autonomous B");
         runtime.reset();
         while (runtime.seconds() < 3) {
-            stay(-16, -34, -90);
+            stay(-10, -34, -90);
         }
         runtime.reset();
         while (runtime.seconds() < 0.5) {
@@ -439,7 +439,7 @@ public class redright extends LinearOpMode {
         moveTo(-23, -32, -90, 3);
         runtime.reset();
         while (runtime.seconds() < 3) {
-            stay(-32, -20, 90);
+            stay(-32, -21, 90);
             leftlift.setTargetPosition(350);
             rightlift.setTargetPosition(350);
             leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -450,7 +450,7 @@ public class redright extends LinearOpMode {
         }
         runtime.reset();
         while (runtime.seconds() < 2) {
-            stay(-36, -20, 90);
+            stay(-36, -21, 90);
         }
 
 

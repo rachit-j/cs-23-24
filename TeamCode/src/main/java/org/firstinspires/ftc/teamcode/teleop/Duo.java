@@ -90,7 +90,7 @@ public class Duo extends LinearOpMode {
         resetRuntime();
 
         double clawclosevalue = 0.51;
-        double clawopenvalue = 0.41;
+        double clawopenvalue = 0.40;
         double linkagedownvalue = 0.53;
         double linkageupvalue = 0.08;
         double liftuppower = 0.8;

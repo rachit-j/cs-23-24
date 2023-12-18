@@ -427,7 +427,7 @@ public class blueleft extends LinearOpMode {
         telemetry.addLine("Autonomous B");
         runtime.reset();
         while (runtime.seconds() < 3) {
-            stay(18, -34, 90);
+            stay(14, -34, 90);
         }
         runtime.reset();
         while (runtime.seconds() < 0.5) {
