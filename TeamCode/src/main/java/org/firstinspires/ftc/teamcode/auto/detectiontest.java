@@ -35,10 +35,11 @@ public class detectiontest extends LinearOpMode {
     private double CrUpperUpdate = 255;
     private double CbUpperUpdate = 255;
 
-    public static double borderLeftX    = 0.0;   //fraction of pixels from the left side of the cam to skip
-    public static double borderRightX   = 0.0;   //fraction of pixels from the right of the cam to skip
-    public static double borderTopY     = 0.0;   //fraction of pixels from the top of the cam to skip
-    public static double borderBottomY  = 0.0;   //fraction of pixels from the bottom of the cam to skip
+    // Define border values
+    private static final double BORDER_LEFT_X = 0.1;   // Example value: 10% of the image cropped from the left
+    private static final double BORDER_RIGHT_X = 0.1;  // Example value: 10% of the image cropped from the right
+    private static final double BORDER_TOP_Y = 0.1;    // Example value: 10% of the image cropped from the top
+    private static final double BORDER_BOTTOM_Y = 0.1; // Example value: 10% of the image cropped from the bottom
 
     private double lowerruntime = 0;
     private double upperruntime = 0;
@@ -86,12 +87,16 @@ public class detectiontest extends LinearOpMode {
         // OpenCV webcam
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        //OpenCV Pipeline
+        // OpenCV Pipeline
         ContourPipeline myPipeline;
-        webcam.setPipeline(myPipeline = new ContourPipeline(borderLeftX,borderRightX,borderTopY,borderBottomY));
-        // Configuration of Pipeline
-        myPipeline.configureScalarLower(scalarLowerYCrCb.val[0],scalarLowerYCrCb.val[1],scalarLowerYCrCb.val[2]);
-        myPipeline.configureScalarUpper(scalarUpperYCrCb.val[0],scalarUpperYCrCb.val[1],scalarUpperYCrCb.val[2]);
+        webcam.setPipeline(myPipeline = new ContourPipeline(BORDER_LEFT_X, BORDER_RIGHT_X, BORDER_TOP_Y, BORDER_BOTTOM_Y));
+
+        // Configure Pipeline
+        myPipeline.configureScalarLower(scalarLowerYCrCb.val[0], scalarLowerYCrCb.val[1], scalarLowerYCrCb.val[2]);
+        myPipeline.configureScalarUpper(scalarUpperYCrCb.val[0], scalarUpperYCrCb.val[1], scalarUpperYCrCb.val[2]);
+
+        // Configure Borders for cropping
+        myPipeline.configureBorders(BORDER_LEFT_X, BORDER_RIGHT_X, BORDER_TOP_Y, BORDER_BOTTOM_Y);
         // Webcam Streaming
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -125,7 +130,6 @@ public class detectiontest extends LinearOpMode {
         telemetry.update();
 
         // Camera Stuff
-        myPipeline.configureBorders(borderLeftX, borderRightX, borderTopY, borderBottomY);
         if(myPipeline.error){
             telemetry.addData("Exception: ", myPipeline.debug);
         }
@@ -145,7 +149,6 @@ public class detectiontest extends LinearOpMode {
 
 
             // Camera Stuff
-            myPipeline.configureBorders(borderLeftX, borderRightX, borderTopY, borderBottomY);
             if(myPipeline.error){
                 telemetry.addData("Exception: ", myPipeline.debug);
             }

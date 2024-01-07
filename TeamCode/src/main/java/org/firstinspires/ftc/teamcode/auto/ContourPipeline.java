@@ -77,10 +77,11 @@ public class ContourPipeline extends OpenCvPipeline {
         scalarUpperYCrCb = new Scalar(y, cr, cb);
     }
     public void configureBorders(double borderLeftX, double borderRightX, double borderTopY, double borderBottomY) {
-        this.borderLeftX = borderLeftX;
-        this.borderRightX = borderRightX;
-        this.borderTopY = borderTopY;
-        this.borderBottomY = borderBottomY;
+        // Validate and set border values
+        this.borderLeftX = Math.max(0, Math.min(borderLeftX, 1));
+        this.borderRightX = Math.max(0, Math.min(borderRightX, 1));
+        this.borderTopY = Math.max(0, Math.min(borderTopY, 1));
+        this.borderBottomY = Math.max(0, Math.min(borderBottomY, 1));
     }
 
     @Override
@@ -88,8 +89,17 @@ public class ContourPipeline extends OpenCvPipeline {
         CAMERA_WIDTH = input.width();
         CAMERA_HEIGHT = input.height();
         try {
+            // Cropping the image
+            Rect cropRect = new Rect(
+                    (int) (borderLeftX * CAMERA_WIDTH),
+                    (int) (borderTopY * CAMERA_HEIGHT),
+                    (int) (CAMERA_WIDTH - (borderLeftX * CAMERA_WIDTH) - (borderRightX * CAMERA_WIDTH)),
+                    (int) (CAMERA_HEIGHT - (borderTopY * CAMERA_HEIGHT) - (borderBottomY * CAMERA_HEIGHT))
+            );
+            Mat croppedInput = new Mat(input, cropRect);
+
             // Process Image
-            Imgproc.cvtColor(input, mat, Imgproc.COLOR_RGB2YCrCb);
+            Imgproc.cvtColor(croppedInput, mat, Imgproc.COLOR_RGB2YCrCb);
             Core.inRange(mat, scalarLowerYCrCb, scalarUpperYCrCb, processed);
             // Remove Noise
             Imgproc.morphologyEx(processed, processed, Imgproc.MORPH_OPEN, new Mat());
@@ -218,4 +228,6 @@ public class ContourPipeline extends OpenCvPipeline {
             return maxRect.area();
         }
     }
+
+
 }
