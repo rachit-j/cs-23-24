@@ -110,7 +110,7 @@ public class ContourPipeline extends OpenCvPipeline {
                     Point[] contourArray = contour.toArray();
 
                     // Bound Rectangle if Contour is Large Enough
-                    if (contourArray.length >= 15) {
+                    if (contourArray.length >= 5) { // changed from 15 to 5
                         MatOfPoint2f areaPoints = new MatOfPoint2f(contourArray);
                         Rect rect = Imgproc.boundingRect(areaPoints);
 
@@ -146,7 +146,7 @@ public class ContourPipeline extends OpenCvPipeline {
                 }
             }
             // Draw Rectangles If Area Is At Least 500
-            if (first && maxRect.area() > 500) {
+            if (first && maxRect.area() > 250) { // changed to 250 from 500
                 Imgproc.rectangle(input, maxRect, new Scalar(0, 255, 0), 2);
             }
             // Draw Borders
