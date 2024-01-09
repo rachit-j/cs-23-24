@@ -45,12 +45,12 @@ public class detectiontest extends LinearOpMode {
     private double upperruntime = 0;
 
     // Red Range                                      Y      Cr     Cb
-    public static Scalar scalarLowerYCrCb = new Scalar(  0.0, 160.0, 100.0);
-    public static Scalar scalarUpperYCrCb = new Scalar(255.0, 255.0, 255.0);
+    //public static Scalar scalarLowerYCrCb = new Scalar(  0.0, 160.0, 100.0);
+    //public static Scalar scalarUpperYCrCb = new Scalar(255.0, 255.0, 255.0);
 
     // Blue Range                                      Y      Cr     Cb
-    //public static Scalar scalarLowerYCrCb = new Scalar(0.0, 0.0, 120.0);
-    //public static Scalar scalarUpperYCrCb = new Scalar(255.0, 100.0, 255.0);
+    public static Scalar scalarLowerYCrCb = new Scalar(0.0, 0.0, 120.0);
+    public static Scalar scalarUpperYCrCb = new Scalar(255.0, 100.0, 255.0);
 
 
     // Yellow Range
