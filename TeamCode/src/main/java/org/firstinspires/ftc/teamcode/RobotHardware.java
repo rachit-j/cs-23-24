@@ -10,18 +10,13 @@ public class RobotHardware {
     DcMotor bl;
     DcMotor br;
 
-    DcMotor leftlift;
 
-    DcMotor rightlift;
-
-
-    public RobotHardware(DcMotor fl, DcMotor fr, DcMotor bl, DcMotor br, DcMotor leftlift, DcMotor rightlift) {
+    public RobotHardware(DcMotor fl, DcMotor fr, DcMotor bl, DcMotor br) {
         this.fl = fl;
         this.fr = fr;
         this.bl = bl;
         this.br = br;
-        this.leftlift = leftlift;
-        this.rightlift = rightlift;
+
 
     }
 
@@ -45,18 +40,6 @@ public class RobotHardware {
         bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        leftlift.setDirection(DcMotor.Direction.FORWARD);
-        rightlift.setDirection(DcMotor.Direction.REVERSE);
-
-        leftlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        leftlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        leftlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightlift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
     }

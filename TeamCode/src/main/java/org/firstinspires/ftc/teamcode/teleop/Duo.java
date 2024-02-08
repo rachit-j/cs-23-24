@@ -67,7 +67,7 @@ public class Duo extends LinearOpMode {
 
         rightclaw.setDirection(Servo.Direction.REVERSE);
 
-        RobotHardware robot = new RobotHardware(fl, fr, bl, br, leftlift, rightlift);
+        RobotHardware robot = new RobotHardware(fl, fr, bl, br);
         robot.innitHardwareMap();
 
         waitForStart();
