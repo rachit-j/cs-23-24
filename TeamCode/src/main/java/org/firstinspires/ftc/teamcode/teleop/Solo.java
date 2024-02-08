@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -13,11 +16,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.odometry;
 
 
 @TeleOp(name="Solo", group="Linear Opmode")
 
 public class Solo extends LinearOpMode {
+
+
+    private PIDController movePID;
+    public static double p = 0.15, i = 0.5, d = 0.00000001; //0.15, 0.5, 8 0s 8
+    private static double maxpowerstay = 0.6;
+    private static double maxpowerturn = 0.5;
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -25,18 +36,41 @@ public class Solo extends LinearOpMode {
     private DcMotor fr = null;
     private DcMotor bl = null;
     private DcMotor br = null;
-    private DcMotor arm = null;
+    private DcMotor leftlift = null;
+    private DcMotor rightlift = null;
+    private DcMotor backlift = null;
+    private DcMotor intake = null;
 
-    Servo wrist;
-    Servo leftclaw;
-    Servo rightclaw;
+    //    Servo leftbox;
+//    Servo rightbox;
+//    Servo leftflicker;
+//    Servo rightflicker;
+//
+//    Servo launcher;
+//    Servo deposit;
 
-    CRServo lefthang;
+    IMU imu;
+    DcMotor verticalLeft, verticalRight, horizontal;
+    final double COUNTS_PER_INCH = 336.877963;
+    odometry update;
 
-    CRServo righthang;
+
 
     @Override
     public void runOpMode() {
+
+        imu = hardwareMap.get(IMU.class, "imu");
+
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
+
+
+        movePID = new PIDController(p, i, d);
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -47,34 +81,86 @@ public class Solo extends LinearOpMode {
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
-        arm = hardwareMap.get(DcMotor.class, "arm");
+        leftlift = hardwareMap.get(DcMotor.class, "leftlift");
+        rightlift = hardwareMap.get(DcMotor.class, "rightlift");
+        backlift = hardwareMap.get(DcMotor.class, "backlift");
+        intake = hardwareMap.get(DcMotor.class, "intake");
 
-        wrist = hardwareMap.get(Servo.class, "wrist");
-        leftclaw = hardwareMap.get(Servo.class, "leftclaw");
-        rightclaw = hardwareMap.get(Servo.class, "rightclaw");
+        //odometers
+        verticalLeft = hardwareMap.dcMotor.get("fl");
+        verticalRight = hardwareMap.dcMotor.get("br");
+        horizontal = hardwareMap.dcMotor.get("fr");
 
-        lefthang = hardwareMap.get(CRServo.class, "lefthang");
-        righthang = hardwareMap.get(CRServo.class, "righthang");
+        //start odometry thread
+        update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
+        Thread positionThread = new Thread(update);
+        positionThread.start();
+
+
+//        leftbox = hardwareMap.get(Servo.class, "leftbox");
+//        rightbox = hardwareMap.get(Servo.class, "rightbox");
+//        leftflicker = hardwareMap.get(Servo.class, "leftflicker");
+//        rightflicker = hardwareMap.get(Servo.class, "rightflicker");
+//        launcher = hardwareMap.get(Servo.class, "launcher");
+//        deposit = hardwareMap.get(Servo.class, "deposit");
 
         fl.setDirection(DcMotor.Direction.REVERSE);
         bl.setDirection(DcMotor.Direction.REVERSE);
         fr.setDirection(DcMotor.Direction.FORWARD);
         br.setDirection(DcMotor.Direction.FORWARD);
-        arm.setDirection(DcMotor.Direction.REVERSE);
+        leftlift.setDirection(DcMotor.Direction.FORWARD);
+        rightlift.setDirection(DcMotor.Direction.REVERSE);
+        backlift.setDirection(DcMotor.Direction.REVERSE);
+        intake.setDirection(DcMotor.Direction.FORWARD);
 
         fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+
+        fl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        fr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        br.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        fl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        bl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        fr.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        br.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         waitForStart();
 
-        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        imu.resetYaw();
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+
+        leftlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftlift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightlift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backlift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//
+//        verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        verticalRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        horizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         runtime.reset();
+//        update.resetToZero();
 
         while (opModeIsActive()) {
-            telemetry.addData("arm", arm.getCurrentPosition());
+            telemetry.addData("leftlift: ", leftlift.getCurrentPosition());
+            telemetry.addData("rightlift: ", rightlift.getCurrentPosition());
+            telemetry.addData("backlift: ", backlift.getCurrentPosition());
+            telemetry.addData("x: ", update.x() / COUNTS_PER_INCH);
+            telemetry.addData("y: ", update.y() / COUNTS_PER_INCH);
+            telemetry.addData("h: ", update.h());
+
             telemetry.update();
 
             double x = gamepad1.left_stick_x;
@@ -82,64 +168,109 @@ public class Solo extends LinearOpMode {
             double turn = gamepad1.right_stick_x;
             double modifier = 1;
 
-            fl.setPower(modifier*(y + x + turn));
-            fr.setPower(modifier*(y - x - turn));
-            bl.setPower(modifier*(y - x + turn));
-            br.setPower(modifier*(y + x - turn));
+//            if (gamepad1.a) {
+//                launcher.setPosition(0.0);
+//            }
+//            if (gamepad1.b) {
+//                launcher.setPosition(2);
+//            }
 
-            if(gamepad1.x) { //reset arm
-                arm.setTargetPosition(0);
-                arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                arm.setPower(0);
+//            fl.setPower(modifier*(y + x + turn));
+//            fr.setPower(modifier*(y - x - turn));
+//            bl.setPower(modifier*(y - x + turn));
+//            br.setPower(modifier*(y + x - turn));
+
+            if (gamepad1.right_trigger > 0.5) {
+                intake.setPower(1);
             }
-            if (gamepad1.a) { //deposit position
-                arm.setTargetPosition(1400);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.8);
+            else if (gamepad1.left_trigger > 0.5) {
+                intake.setPower(-1);
             }
-            if (gamepad1.b) { //intake position
-                arm.setTargetPosition(5);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.4);
-            }
-            if (gamepad1.y) {
-                arm.setTargetPosition(1200);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.8);
-            }
-            if (gamepad1.left_trigger > 0){ //left claw close
-                leftclaw.setPosition(0.4);
-            }
-            if (gamepad1.left_bumper){ //left claw open
-                leftclaw.setPosition(0.55);
-            }
-            if (gamepad1.right_trigger > 0){ //right claw close
-                rightclaw.setPosition(0.49);
-            }
-            if (gamepad1.right_bumper){ //right claw open
-                rightclaw.setPosition(0.34);
-            }
-            if (gamepad1.dpad_down){
-                wrist.setPosition(0.45);
-            }
-            if(gamepad1.dpad_up){
-                wrist.setPosition(0.9);
-            }
+            else intake.setPower(0);
+
             if (gamepad1.dpad_left){
-                lefthang.setPower(-1);
-                righthang.setPower(1);
+                leftlift.setPower(1);
+                rightlift.setPower(1);
+                backlift.setPower(1);
             }
             else if (gamepad1.dpad_right){
-                lefthang.setPower(1);
-                righthang.setPower(-1);
+                leftlift.setPower(-1);
+                rightlift.setPower(-1);
+                backlift.setPower(-1);
             }
             else {
-                lefthang.setPower(0);
-                righthang.setPower(0);
+                leftlift.setPower(0);
+                rightlift.setPower(0);
+                backlift.setPower(0);
+            }
+
+            if(gamepad2.a){
+                stay(10, 10, 90);
+            }
+            else if(gamepad2.y) {
+                stay(-10, -10, -90);
+            }
+            else if(gamepad2.b){
+                stay(0, 0, 0);
+            }
+            else {
+                fl.setPower(modifier*(y + x + turn));
+                fr.setPower(modifier*(y - x - turn));
+                bl.setPower(modifier*(y - x + turn));
+                br.setPower(modifier*(y + x - turn));
             }
 
 
 
+        }
+
+
+    }
+    public void stay(double targetX, double targetY, double targetOrientation) {
+        double distanceX = targetX - (update.x() / COUNTS_PER_INCH);
+        double distanceY = targetY - (update.y() / COUNTS_PER_INCH);
+        double x = 0.15 * distanceX;
+        double y = 0.15 * distanceY;
+        double turn = 0.035 * (update.h() - targetOrientation);
+        double theta = Math.toRadians(update.h());
+
+        if (x > maxpowerstay) {
+            x = maxpowerstay;
+        }
+        else if (x < -maxpowerstay) {
+            x = -maxpowerstay;
+        }
+        else x = x;
+        if (y > maxpowerstay) {
+            y = maxpowerstay;
+        }
+        else if (y < -maxpowerstay) {
+            y = -maxpowerstay;
+        }
+        else y = y;
+        if (turn > maxpowerturn) {
+            turn = maxpowerturn;
+        }
+        else if (turn < -maxpowerturn) {
+            turn = -maxpowerturn;
+        }
+        else turn = turn;
+
+        double l = y * Math.sin(theta + (Math.PI/4)) - x * Math.sin(theta - (Math.PI/4));
+        double r = y * Math.cos(theta + (Math.PI/4)) - x * Math.cos(theta - (Math.PI/4));
+
+        telemetry.addData("l: ", l);
+        telemetry.addData("r: ", r);
+        telemetry.update();
+
+
+        fl.setPower(l + turn);
+        fr.setPower(r - turn);
+        bl.setPower(r + turn);
+        br.setPower(l - turn);
+
+        if(isStopRequested()) {
+            update.stop();
         }
     }
 }

@@ -21,7 +21,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 
 @Autonomous(name="Blue Left", group="Autonomous")
-public class blueleft extends LinearOpMode {
+public class  blueleft extends LinearOpMode {
 
     private PIDController movePID;
     public static double p = 0.15, i = 0.5, d = 0.00000001; //0.15, 0.5, 8 0s 8

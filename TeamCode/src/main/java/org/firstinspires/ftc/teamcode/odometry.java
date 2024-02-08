@@ -44,7 +44,7 @@ public class odometry implements Runnable {
         oldIMU = currentIMU;
 
         currentLeftPos = -encoderLeft.getCurrentPosition();
-        currentRightPos = encoderRight.getCurrentPosition();
+        currentRightPos = -encoderRight.getCurrentPosition();
         currentAuxPos = -encoderAux.getCurrentPosition();
         currentIMU = getAngle();
 
@@ -58,7 +58,7 @@ public class odometry implements Runnable {
         orientationChange = Math.toRadians(IMUChange);
         robotOrientationRadians = Math.toRadians(currentIMU); //using imu
 
-        double horizontalChange = auxChange - (orientationChange * 1860); //168.4 10695 10000
+        double horizontalChange = auxChange - (orientationChange * 1768.60931);
 
         double p = ((rightChange + leftChange) / 2);
         double n = horizontalChange;
@@ -73,6 +73,15 @@ public class odometry implements Runnable {
 
     public double h(){ return Math.toDegrees(robotOrientationRadians); }
 
+//    public void resetToZero(){
+//        currentRightPos = 0;
+//        currentLeftPos = 0;
+//        currentAuxPos = 0;
+//        currentIMU = 0;
+//        orientationChange = 0;
+//        robotGlobalXCoordinatePosition = 0; robotGlobalYCoordinatePosition = 0; robotOrientationRadians = 0;
+//        oldRightPos = 0; oldLeftPos = 0; oldAuxPos = 0; oldIMU = 0;
+//    }
     public void stop(){ isRunning = false; }
 
     @Override
