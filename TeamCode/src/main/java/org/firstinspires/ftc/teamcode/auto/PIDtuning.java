@@ -24,7 +24,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 public class  PIDtuning extends LinearOpMode {
 
     private PIDController movePID;
-    public static double p = 0.03, i = 0.35, d = 3*Math.pow(10, -9);
+    public static double p = 0.03, i = 0, d = 3*Math.pow(10, -9);
 
     private static double maxpowermove = 1;
     private static double maxpowerstay = 0.6;
