@@ -21,15 +21,10 @@ import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.odometry;
 
 
-@TeleOp(name="Solo", group="Linear Opmode")
+@TeleOp(name="Duo", group="Linear Opmode")
 
-public class Solo extends LinearOpMode {
+public class Duo extends LinearOpMode {
 
-
-    private PIDController movePID;
-    public static double p = 0.15, i = 0.5, d = 0.00000001; //0.15, 0.5, 8 0s 8
-    private static double maxpowerstay = 0.6;
-    private static double maxpowerturn = 0.5;
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -44,7 +39,7 @@ public class Solo extends LinearOpMode {
 
     Servo leftbox;
     Servo rightbox;
-//    Servo leftflicker;
+    //    Servo leftflicker;
 //    Servo rightflicker;
 //
 //    Servo launcher;
@@ -69,8 +64,6 @@ public class Solo extends LinearOpMode {
 
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
-
-        movePID = new PIDController(p, i, d);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -149,6 +142,7 @@ public class Solo extends LinearOpMode {
         double depositpos = 0.8;
         double intakepos = 0.245;
         int boxstate = 0;
+        double modifier = 1;
 
         runtime.reset();
 
@@ -162,10 +156,13 @@ public class Solo extends LinearOpMode {
 
             telemetry.update();
 
-            double x = gamepad1.left_stick_x;
-            double y = -gamepad1.left_stick_y;
+            double x = -gamepad1.left_stick_x;
+            double y = gamepad1.left_stick_y;
             double turn = gamepad1.right_stick_x;
-            double modifier = 1;
+
+            if (gamepad1.left_trigger > 0.5) {
+                modifier = 0.3;
+            } else modifier = 1;
 
             fl.setPower(modifier*(y + x + turn));
             fr.setPower(modifier*(y - x - turn));
@@ -173,19 +170,19 @@ public class Solo extends LinearOpMode {
             br.setPower(modifier*(y + x - turn));
 
 
-            if (gamepad1.right_trigger > 0.5) {
+            if (gamepad2.right_trigger > 0.5) {
                 intake.setPower(1);
             }
-            else if (gamepad1.left_trigger > 0.5) {
+            else if (gamepad2.left_trigger > 0.5) {
                 intake.setPower(-1);
             }
             else intake.setPower(0);
 
-            if (gamepad1.a) {
+            if (gamepad2.a) {
                 leftbox.setPosition(depositpos);
                 rightbox.setPosition(depositpos);
             }
-            if (gamepad1.b) {
+            if (gamepad2.b) {
                 setlift(0);
                 boxstate = 1;
             }
@@ -194,17 +191,17 @@ public class Solo extends LinearOpMode {
                 rightbox.setPosition(intakepos);
                 boxstate = 0;
             }
-            if (gamepad1.right_bumper) {
+            if (gamepad2.right_bumper) {
                 deposit.setPosition(0.5);
             } else deposit.setPosition(1);
 
-            if (gamepad1.dpad_up) {
+            if (gamepad2.dpad_up) {
                 setlift(1500);
             }
-            if (gamepad1.dpad_right) {
+            if (gamepad2.dpad_right) {
                 setlift(1000);
             }
-            if (gamepad1.dpad_down) {
+            if (gamepad2.dpad_down) {
                 setlift(500);
             }
         }
