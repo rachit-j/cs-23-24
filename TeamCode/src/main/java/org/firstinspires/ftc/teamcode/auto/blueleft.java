@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,7 +9,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.odometry;
 import org.opencv.core.Scalar;
@@ -19,11 +17,13 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 
-@Autonomous(name="wtf", group="Autonomous")
-public class wtf extends LinearOpMode {
+@Autonomous(name="Blue Left", group="Autonomous")
+public class blueleft extends LinearOpMode {
 
-    private PIDController movePID;
-    public static double p = 0.03, i = 0, d = 3*Math.pow(10, -9); //
+    private PIDController longPID;
+    private PIDController latPID;
+    public static double plong = 0.05, ilong = 0, dlong = 3*Math.pow(10, -9);
+    public static double plat = 0.15, ilat = 0, dlat = 3*Math.pow(10, -9);
 
     private OpenCvCamera webcam;
 
@@ -44,11 +44,11 @@ public class wtf extends LinearOpMode {
     private double upperruntime = 0;
 
     // Red Range                                      Y      Cr     Cb
-    // public static Scalar scalarLowerYCrCb = new Scalar(  0.0, 160.0, 100.0);
-    // public static Scalar scalarUpperYCrCb = new Scalar(255.0, 255.0, 255.0);
+    //public static Scalar scalarLowerYCrCb = new Scalar(  0.0, 160.0, 100.0);
+    //public static Scalar scalarUpperYCrCb = new Scalar(255.0, 255.0, 255.0);
 
     // Blue Range                                      Y      Cr     Cb
-    public static Scalar scalarLowerYCrCb = new Scalar(0.0, 0.0, 120.0);
+    public static Scalar scalarLowerYCrCb = new Scalar(0.0, 0.0, 140.0);
     public static Scalar scalarUpperYCrCb = new Scalar(255.0, 100.0, 255.0);
 
 
@@ -76,8 +76,29 @@ public class wtf extends LinearOpMode {
     private DcMotor fr = null;
     private DcMotor bl = null;
     private DcMotor br = null;
+    private DcMotor leftlift = null;
+    private DcMotor rightlift = null;
+    private DcMotor backlift = null;
+    private DcMotor intake = null;
 
-    public double count = 4; // Amount of white pixels
+
+    public double count = 2; // Amount of white pixels
+
+    // Control variables
+    public double depositpos = 0.8;
+    public double intakepos = 0.245;
+    public int boxstate = 0;
+    public double flickerclose = 0.35;
+    public double flickeropen = 0.8;
+    public double launcherrelease = 0.5;
+    public double launcherclose = 1;
+
+    Servo leftbox;
+    Servo rightbox;
+    Servo leftflicker;
+    Servo rightflicker;
+    Servo launcher;
+    Servo deposit;
 
     IMU imu;
     DcMotor verticalLeft, verticalRight, horizontal;
@@ -91,17 +112,18 @@ public class wtf extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-        imu = hardwareMap.get(IMU.class, "imu");
+//        imu = hardwareMap.get(IMU.class, "imu");
+//
+//        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
+//        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+//
+//        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+//
+//        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
 
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
-
-
-        movePID = new PIDController(p, i, d);
+        longPID = new PIDController(plong, ilong, dlong);
+        latPID = new PIDController(plat, ilat, dlat);
 
         fl = hardwareMap.get(DcMotor.class, "fl");
         fr = hardwareMap.get(DcMotor.class, "fr");
@@ -111,6 +133,24 @@ public class wtf extends LinearOpMode {
         RobotHardware robot = new RobotHardware(fl, fr, bl, br);
         robot.innitHardwareMap();
 
+        // other motors
+        leftlift = hardwareMap.get(DcMotor.class, "leftlift");
+        rightlift = hardwareMap.get(DcMotor.class, "rightlift");
+        backlift = hardwareMap.get(DcMotor.class, "backlift");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+
+        // servos
+        leftbox = hardwareMap.get(Servo.class, "leftbox");
+        rightbox = hardwareMap.get(Servo.class, "rightbox");
+        deposit = hardwareMap.get(Servo.class, "deposit");
+
+        launcher = hardwareMap.get(Servo.class, "launcher");
+        leftflicker = hardwareMap.get(Servo.class, "leftflicker");
+        rightflicker = hardwareMap.get(Servo.class, "rightflicker");
+
+        leftbox.setDirection(Servo.Direction.REVERSE);
+        rightflicker.setDirection(Servo.Direction.REVERSE);
+        launcher.setDirection(Servo.Direction.REVERSE);
 
         //odometers
         verticalLeft = hardwareMap.dcMotor.get("fl");
@@ -121,6 +161,17 @@ public class wtf extends LinearOpMode {
         update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
         Thread positionThread = new Thread(update);
         positionThread.start();
+
+        // Configure Motors
+        leftlift.setDirection(DcMotor.Direction.FORWARD);
+        rightlift.setDirection(DcMotor.Direction.REVERSE);
+        backlift.setDirection(DcMotor.Direction.REVERSE);
+        intake.setDirection(DcMotor.Direction.FORWARD);
+
+        leftlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         //start of camera code
         // OpenCV webcam
@@ -168,21 +219,44 @@ public class wtf extends LinearOpMode {
         if(myPipeline.error){
             telemetry.addData("Exception: ", myPipeline.debug);
         }
+
+        // init lifts
+        leftlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftlift.setTargetPosition(0);
+        rightlift.setTargetPosition(0);
+        backlift.setTargetPosition(0);
+        leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftlift.setPower(1);
+        rightlift.setPower(1);
+        backlift.setPower(1);
+
+
+
+
+//        imu.resetYaw();
+//        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         telemetry.addData("RectArea: ", myPipeline.getRectArea());
+        telemetry.addData("Status", "Initialized");
         telemetry.update();
 
         waitForStart();
-        imu.resetYaw();
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+
+
         resetRuntime();
-
-
-
-
 
         //start of auto
         while(opModeIsActive()){
-
+            // Lift & Position Telemetry
+//            telemetry.addData("leftlift: ", leftlift.getCurrentPosition());
+//            telemetry.addData("rightlift: ", rightlift.getCurrentPosition());
+//            telemetry.addData("backlift: ", backlift.getCurrentPosition());
+//            telemetry.addData("x: ", update.x() / COUNTS_PER_INCH);
+//            telemetry.addData("y: ", update.y() / COUNTS_PER_INCH);
+//            telemetry.addData("h: ", update.h());
 
             // Camera Stuff
             myPipeline.configureBorders(borderLeftX, borderRightX, borderTopY, borderBottomY);
@@ -199,20 +273,22 @@ public class wtf extends LinearOpMode {
             double rectMidpointX = myPipeline.getRectMidpointX();
             double screenThird = CAMERA_WIDTH / 3.0;
 
-            /*if(rectMidpointX > 2 * screenThird){
+            if(rectMidpointX > 2 * screenThird){
                 telemetry.addLine("OBJECT IS ON THE RIGHT SIDE");
+                telemetry.update();
                 AUTONOMOUS_C();
             }
             else if(rectMidpointX > screenThird){
                 telemetry.addLine("OBJECT IS IN THE MIDDLE");
+                telemetry.update();
                 AUTONOMOUS_B();
             }
             else {
                 telemetry.addLine("OBJECT IS ON THE LEFT SIDE");
+                telemetry.update();
                 AUTONOMOUS_A();
-            } */
+            }
 
-            AUTONOMOUS_A();
             telemetry.update();
 
             runtime.reset();
@@ -231,16 +307,18 @@ public class wtf extends LinearOpMode {
             distanceX = targetX - (update.x() / COUNTS_PER_INCH);
             distanceY = targetY - (update.y() / COUNTS_PER_INCH);
 
-            movePID.setPID(p, i, d);
+            longPID.setPID(plong, ilong, dlong);
+            latPID.setPID(plat, ilat, dlat);
             double currentX = update.x() / COUNTS_PER_INCH;
             double currentY = update.y() / COUNTS_PER_INCH;
-            double x = movePID.calculate(currentX, targetX);
-            double y = movePID.calculate(currentY, targetY);
+            double x = longPID.calculate(currentX, targetX);
+            double y = latPID.calculate(currentY, targetY);
 
-            double turn = 0.04 * (update.h() - targetOrientation);
+            double turn = 0.035 * (update.h() - targetOrientation);
             double theta = Math.toRadians(update.h());
             if (Math.abs(distanceX) < 1 || Math.abs(distanceY) < 1) {
-                movePID.reset();
+                longPID.reset();
+                latPID.reset();
             }
             if (x > maxpowermove) {
                 x = maxpowermove;
@@ -277,9 +355,9 @@ public class wtf extends LinearOpMode {
     public void stay(double targetX, double targetY, double targetOrientation) {
         double distanceX = targetX - (update.x() / COUNTS_PER_INCH);
         double distanceY = targetY - (update.y() / COUNTS_PER_INCH);
-        double x = 0.1 * distanceX;
-        double y = 0.1 * distanceY;
-        double turn = 0.035 * (update.h() - targetOrientation);
+        double x = 0.2 * distanceX;
+        double y = 0.2 * distanceY;
+        double turn = 0.03 * (update.h() - targetOrientation);
         double theta = Math.toRadians(update.h());
 
         if (x > maxpowerstay) {
@@ -348,47 +426,150 @@ public class wtf extends LinearOpMode {
     }
 
 
-    public void AUTONOMOUS_A(){
+    public void AUTONOMOUS_C(){
         telemetry.addLine("Autonomous A");
+
+        // Phase 1: Dropping purple pixel
+        deposit.setPosition(1);
         runtime.reset();
-        moveTo(-6, -24, -90, 8);
+        while (runtime.seconds() < 1) {
+            stay(0, -3, 0);
+        }
+        runtime.reset();
+        while (runtime.seconds() < 1) {
+            stay(0, -3, 0);
+            setBoxup();
+            setFlickerclose();
+        }
+        moveTo(12, -30, 90, 8);
         runtime.reset();
         while (runtime.seconds() < 3) {
-            stay(0, -28, -90);
+            stay(-2, -26, 90);
         }
-        moveTo(-30, -27, -90, 3);
+        setFlickeropen();
 
+        //moving to backdrop
+        setlift(500);
+        moveTo(39, -32, 90, 8);
         runtime.reset();
         while (runtime.seconds() < 2) {
-            stay(-33, -32, -90);
+            stay(39, -32, 90);
         }
-        moveTo(-24, -54, -90, 8);
-        moveTo(60, -51, -90, 4);
         runtime.reset();
-        while (runtime.seconds() < 3) {
-            stay(72, -51, -90);
+        while (runtime.seconds() < 2) {
+            deposit.setPosition(0.5);
         }
-        moveTo(60, -51, -90, 4);
-        moveTo(0, -54, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(-33, -32, -90);
-        }
-        moveTo(-48, -51, -90, 0);
 
-
+        //parking
+        setlift(0);
+        moveTo(12, -20, 90, 8);
+        setBoxdown();
+        moveTo(36, -3, 90, 0);
 
     }
     public void AUTONOMOUS_B(){
         telemetry.addLine("Autonomous B");
+
+        // pick up purple pixel
+        deposit.setPosition(1);
         runtime.reset();
+        while (runtime.seconds() < 1) {
+            stay(0, -3, 0);
+        }
+        runtime.reset();
+        while (runtime.seconds() < 1) {
+            stay(0, -3, 0);
+            setBoxup();
+            setFlickerclose();
+        }
 
+        //move to line and drop purple pixel
+        moveTo(12, -48, 0, 8);
+        runtime.reset();
+        while (runtime.seconds() < 3) {
+            stay(12, -36, 90);
+        }
+        setFlickeropen();
 
+        //moving to backdrop
+        setlift(500);
+        moveTo(39, -26, 90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 2) {
+            stay(39, -26, 90);
+        }
+        runtime.reset();
+        while (runtime.seconds() < 2) {
+            deposit.setPosition(0.5);
+        }
+
+        //parking
+        setlift(0);
+        moveTo(12, -20, 90, 8);
+        setBoxdown();
+        moveTo(36, -3, 90, 0);
 
     }
-    public void AUTONOMOUS_C(){
+    public void AUTONOMOUS_A(){
         telemetry.addLine("Autonomous C");
+        // pick up purple pixel
+        deposit.setPosition(1);
         runtime.reset();
+        while (runtime.seconds() < 1) {
+            stay(0, -3, 0);
+        }
+        runtime.reset();
+        while (runtime.seconds() < 1) {
+            stay(0, -3, 0);
+            setBoxup();
+            setFlickerclose();
+        }
 
+        //move to line and drop purple pixel
+        moveTo(30, -20, 0, 8);
+        runtime.reset();
+        while (runtime.seconds() < 3) {
+            stay(20, -28, 90);
+        }
+        setFlickeropen();
+
+        //moving to backdrop
+        setlift(500);
+        moveTo(39, -23, 90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 2) {
+            stay(39, -23, 90);
+        }
+        runtime.reset();
+        while (runtime.seconds() < 2) {
+            deposit.setPosition(0.5);
+        }
+
+        //parking
+        setlift(0);
+        moveTo(12, -20, 90, 8);
+        setBoxdown();
+        moveTo(36, -3, 90, 0);
+    }
+    public void setFlickeropen(){
+        leftflicker.setPosition(flickeropen);
+        rightflicker.setPosition(flickeropen);
+    }
+    public void setFlickerclose(){
+        leftflicker.setPosition(flickerclose);
+        rightflicker.setPosition(flickerclose);
+    }
+    public void setBoxup(){
+        leftbox.setPosition(depositpos);
+        rightbox.setPosition(depositpos);
+    }
+    public void setBoxdown(){
+        leftbox.setPosition(intakepos);
+        rightbox.setPosition(intakepos);
+    }
+    public void setlift(int targetValue) {
+        leftlift.setTargetPosition(targetValue);
+        rightlift.setTargetPosition(targetValue);
+        backlift.setTargetPosition(targetValue);
     }
 }

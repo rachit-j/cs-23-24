@@ -12,10 +12,10 @@ public class odometry implements Runnable {
     IMU imu;
     double globalAngle;
 
-    private double getAngle() {
-        globalAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-        return globalAngle;
-    }
+//    private double getAngle() {
+//        globalAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+//        return globalAngle;
+//    }
 
     //Thead run condition
     private boolean isRunning = true;
@@ -41,22 +41,22 @@ public class odometry implements Runnable {
         oldLeftPos = currentLeftPos;
         oldRightPos = currentRightPos;
         oldAuxPos = currentAuxPos;
-        oldIMU = currentIMU;
+//        oldIMU = currentIMU;
 
         currentLeftPos = -encoderLeft.getCurrentPosition();
         currentRightPos = -encoderRight.getCurrentPosition();
         currentAuxPos = -encoderAux.getCurrentPosition();
-        currentIMU = getAngle();
+//        currentIMU = getAngle();
 
         double leftChange = currentLeftPos - oldLeftPos;
         double rightChange = currentRightPos - oldRightPos;
         double auxChange = currentAuxPos - oldAuxPos;
-        double IMUChange = currentIMU - oldIMU;
+//        double IMUChange = currentIMU - oldIMU;
 //
-//        orientationChange = (rightChange - leftChange) / 27703.414;
-//        robotOrientationRadians = ((robotOrientationRadians + orientationChange)); //using odometry
-        orientationChange = Math.toRadians(IMUChange);
-        robotOrientationRadians = Math.toRadians(currentIMU); //using imu
+        orientationChange = (rightChange - leftChange) / 2052.85;
+        robotOrientationRadians = ((robotOrientationRadians + orientationChange)); //using odometry
+//        orientationChange = Math.toRadians(IMUChange);
+//        robotOrientationRadians = Math.toRadians(currentIMU); //using imu
 
         double horizontalChange = auxChange - (orientationChange * 1768.60931);
 

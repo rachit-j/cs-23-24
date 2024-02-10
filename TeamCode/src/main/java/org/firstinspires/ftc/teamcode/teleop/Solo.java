@@ -44,10 +44,9 @@ public class Solo extends LinearOpMode {
 
     Servo leftbox;
     Servo rightbox;
-//    Servo leftflicker;
-//    Servo rightflicker;
-//
-//    Servo launcher;
+    Servo leftflicker;
+    Servo rightflicker;
+    Servo launcher;
     Servo deposit;
 
     IMU imu;
@@ -100,7 +99,13 @@ public class Solo extends LinearOpMode {
         rightbox = hardwareMap.get(Servo.class, "rightbox");
         deposit = hardwareMap.get(Servo.class, "deposit");
 
+        launcher = hardwareMap.get(Servo.class, "launcher");
+        leftflicker = hardwareMap.get(Servo.class, "leftflicker");
+        rightflicker = hardwareMap.get(Servo.class, "rightflicker");
+
         leftbox.setDirection(Servo.Direction.REVERSE);
+        rightflicker.setDirection(Servo.Direction.REVERSE);
+        launcher.setDirection(Servo.Direction.REVERSE);
 
 
 
@@ -149,6 +154,10 @@ public class Solo extends LinearOpMode {
         double depositpos = 0.8;
         double intakepos = 0.245;
         int boxstate = 0;
+        double flickerclose = 0.35;
+        double flickeropen = 0.8;
+        double launcherrelease = 0.5;
+        double launcherclose = 1;
 
         runtime.reset();
 
@@ -189,7 +198,7 @@ public class Solo extends LinearOpMode {
                 setlift(0);
                 boxstate = 1;
             }
-            if (boxstate == 1 && leftlift.getCurrentPosition() < 50) {
+            if (boxstate == 1 && leftlift.getCurrentPosition() < 500) {
                 leftbox.setPosition(intakepos);
                 rightbox.setPosition(intakepos);
                 boxstate = 0;
@@ -207,6 +216,17 @@ public class Solo extends LinearOpMode {
             if (gamepad1.dpad_down) {
                 setlift(500);
             }
+            if (gamepad1.x) {
+                leftflicker.setPosition(flickerclose);
+                rightflicker.setPosition(flickerclose);
+            }
+            else {
+                leftflicker.setPosition(flickeropen);
+                rightflicker.setPosition(flickeropen);
+            }
+            if (gamepad1.y) {
+                launcher.setPosition(launcherrelease);
+            } else launcher.setPosition(launcherclose);
         }
     }
 

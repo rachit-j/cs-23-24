@@ -23,8 +23,10 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 @Autonomous(name="PIDtuning", group="Autonomous")
 public class  PIDtuning extends LinearOpMode {
 
-    private PIDController movePID;
-    public static double p = 0.03, i = 0, d = 3*Math.pow(10, -9);
+    private PIDController longPID;
+    private PIDController latPID;
+    public static double plong = 0.05, ilong = 0, dlong = 3*Math.pow(10, -9);
+    public static double plat = 0.15, ilat = 0, dlat = 3*Math.pow(10, -9);
 
     private static double maxpowermove = 1;
     private static double maxpowerstay = 0.6;
@@ -56,7 +58,8 @@ public class  PIDtuning extends LinearOpMode {
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
 
-        movePID = new PIDController(p, i, d);
+        longPID = new PIDController(plong, ilong, dlong);
+        latPID = new PIDController(plat, ilat, dlat);
 
         fl = hardwareMap.get(DcMotor.class, "fl");
         fr = hardwareMap.get(DcMotor.class, "fr");
@@ -87,7 +90,7 @@ public class  PIDtuning extends LinearOpMode {
 
         //start of auto
         while(opModeIsActive()){
-            moveTo(20, 20, 90, 0);
+            moveTo(0, 0, 0, 0);
         }
     }
 
@@ -103,17 +106,20 @@ public class  PIDtuning extends LinearOpMode {
             distanceX = targetX - (update.x() / COUNTS_PER_INCH);
             distanceY = targetY - (update.y() / COUNTS_PER_INCH);
 
-            movePID.setPID(p, i, d);
+            longPID.setPID(plong, ilong, dlong);
+            latPID.setPID(plat, ilat, dlat);
             double currentX = update.x() / COUNTS_PER_INCH;
             double currentY = update.y() / COUNTS_PER_INCH;
-            double x = movePID.calculate(currentX, targetX);
-            double y = movePID.calculate(currentY, targetY);
+            double x = latPID.calculate(currentX, targetX);
+            double y = longPID.calculate(currentY, targetY);
 
             double turn = 0.04 * (update.h() - targetOrientation);
             double theta = Math.toRadians(update.h());
             if (Math.abs(distanceX) < 1 || Math.abs(distanceY) < 1) {
-                movePID.reset();
+                longPID.reset();
+                latPID.reset();
             }
+
             if (x > maxpowermove) {
                 x = maxpowermove;
             }
