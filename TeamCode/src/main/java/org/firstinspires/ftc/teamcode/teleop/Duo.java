@@ -39,32 +39,16 @@ public class Duo extends LinearOpMode {
 
     Servo leftbox;
     Servo rightbox;
-    //    Servo leftflicker;
-//    Servo rightflicker;
-//
-//    Servo launcher;
-    Servo deposit;
+    Servo leftflicker;
+    Servo rightflicker;
 
-    IMU imu;
-    DcMotor verticalLeft, verticalRight, horizontal;
-    final double COUNTS_PER_INCH = 336.877963;
-    odometry update;
+    Servo launcher;
+    Servo deposit;
 
 
 
     @Override
     public void runOpMode() {
-
-        imu = hardwareMap.get(IMU.class, "imu");
-
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
-
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
-
-
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -84,32 +68,17 @@ public class Duo extends LinearOpMode {
         backlift = hardwareMap.get(DcMotor.class, "backlift");
         intake = hardwareMap.get(DcMotor.class, "intake");
 
-        //odometers
-        verticalLeft = hardwareMap.dcMotor.get("fl");
-        verticalRight = hardwareMap.dcMotor.get("br");
-        horizontal = hardwareMap.dcMotor.get("fr");
-
         leftbox = hardwareMap.get(Servo.class, "leftbox");
         rightbox = hardwareMap.get(Servo.class, "rightbox");
         deposit = hardwareMap.get(Servo.class, "deposit");
 
+        launcher = hardwareMap.get(Servo.class, "launcher");
+        leftflicker = hardwareMap.get(Servo.class, "leftflicker");
+        rightflicker = hardwareMap.get(Servo.class, "rightflicker");
+
         leftbox.setDirection(Servo.Direction.REVERSE);
-
-
-
-        //start odometry thread
-        update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
-        Thread positionThread = new Thread(update);
-        positionThread.start();
-
-
-//        leftbox = hardwareMap.get(Servo.class, "leftbox");
-//        rightbox = hardwareMap.get(Servo.class, "rightbox");
-//        leftflicker = hardwareMap.get(Servo.class, "leftflicker");
-//        rightflicker = hardwareMap.get(Servo.class, "rightflicker");
-//        launcher = hardwareMap.get(Servo.class, "launcher");
-//        deposit = hardwareMap.get(Servo.class, "deposit");
-
+        rightflicker.setDirection(Servo.Direction.REVERSE);
+        launcher.setDirection(Servo.Direction.REVERSE);
 
         leftlift.setDirection(DcMotor.Direction.FORWARD);
         rightlift.setDirection(DcMotor.Direction.REVERSE);
@@ -122,9 +91,6 @@ public class Duo extends LinearOpMode {
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         waitForStart();
-
-        imu.resetYaw();
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
 
         leftlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -142,6 +108,10 @@ public class Duo extends LinearOpMode {
         double depositpos = 0.8;
         double intakepos = 0.245;
         int boxstate = 0;
+        double flickerclose = 0.35;
+        double flickeropen = 0.8;
+        double launcherrelease = 0.5;
+        double launcherclose = 1;
         double modifier = 1;
 
         runtime.reset();
@@ -150,9 +120,6 @@ public class Duo extends LinearOpMode {
             telemetry.addData("leftlift: ", leftlift.getCurrentPosition());
             telemetry.addData("rightlift: ", rightlift.getCurrentPosition());
             telemetry.addData("backlift: ", backlift.getCurrentPosition());
-            telemetry.addData("x: ", update.x() / COUNTS_PER_INCH);
-            telemetry.addData("y: ", update.y() / COUNTS_PER_INCH);
-            telemetry.addData("h: ", update.h());
 
             telemetry.update();
 
@@ -183,10 +150,12 @@ public class Duo extends LinearOpMode {
                 rightbox.setPosition(depositpos);
             }
             if (gamepad2.b) {
+                leftbox.setPosition(depositpos);
+                rightbox.setPosition(depositpos);
                 setlift(0);
                 boxstate = 1;
             }
-            if (boxstate == 1 && leftlift.getCurrentPosition() < 50) {
+            if (boxstate == 1 && leftlift.getCurrentPosition() < 500) {
                 leftbox.setPosition(intakepos);
                 rightbox.setPosition(intakepos);
                 boxstate = 0;
@@ -204,6 +173,23 @@ public class Duo extends LinearOpMode {
             if (gamepad2.dpad_down) {
                 setlift(500);
             }
+            if (gamepad2.left_stick_y > 0.5) { //stick pointing down
+                setlift(leftlift.getCurrentPosition() - 100);
+            }
+            if (gamepad2.left_stick_y < -0.5) {
+                setlift(leftlift.getCurrentPosition() + 100);
+            }
+            if (gamepad1.x) {
+                leftflicker.setPosition(flickerclose);
+                rightflicker.setPosition(flickerclose);
+            }
+            else {
+                leftflicker.setPosition(flickeropen);
+                rightflicker.setPosition(flickeropen);
+            }
+            if (gamepad1.y) {
+                launcher.setPosition(launcherrelease);
+            } else launcher.setPosition(launcherclose);
         }
     }
 

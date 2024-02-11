@@ -39,7 +39,7 @@ public class redright extends LinearOpMode {
 
     public static double borderLeftX    = 0.0;   //fraction of pixels from the left side of the cam to skip
     public static double borderRightX   = 0.0;   //fraction of pixels from the right of the cam to skip
-    public static double borderTopY     = 0.0;   //fraction of pixels from the top of the cam to skip
+    public static double borderTopY     = 0.2;   //fraction of pixels from the top of the cam to skip
     public static double borderBottomY  = 0.0;   //fraction of pixels from the bottom of the cam to skip
 
     private double lowerruntime = 0;
@@ -235,7 +235,6 @@ public class redright extends LinearOpMode {
         leftlift.setPower(1);
         rightlift.setPower(1);
         backlift.setPower(1);
-
 
 
 
@@ -441,21 +440,23 @@ public class redright extends LinearOpMode {
         while (runtime.seconds() < 1) {
             stay(0, -3, 0);
             setBoxup();
-            setFlickerclose();
+//            setFlickerclose();
         }
         moveTo(-12, -30, -90, 8);
         runtime.reset();
         while (runtime.seconds() < 3) {
             stay(2, -26, -90);
         }
-        setFlickeropen();
+//        setFlickeropen();
+        intake.setPower(-0.5);
 
         //moving to backdrop
         setlift(500);
-        moveTo(-39, -32, -90, 8);
+        moveTo(-40, -32, -90, 8);
+        intake.setPower(0);
         runtime.reset();
         while (runtime.seconds() < 2) {
-            stay(-39, -32, -90);
+            stay(-40, -32, -90);
         }
         runtime.reset();
         while (runtime.seconds() < 2) {
@@ -482,7 +483,7 @@ public class redright extends LinearOpMode {
         while (runtime.seconds() < 1) {
             stay(0, -3, 0);
             setBoxup();
-            setFlickerclose();
+//            setFlickerclose();
         }
 
         //move to line and drop purple pixel
@@ -491,14 +492,16 @@ public class redright extends LinearOpMode {
         while (runtime.seconds() < 3) {
             stay(-12, -36, -90);
         }
-        setFlickeropen();
+//        setFlickeropen();
+        intake.setPower(-0.5);
 
         //moving to backdrop
         setlift(500);
-        moveTo(-39, -26, -90, 8);
+        moveTo(-40, -28, -90, 8);
+        intake.setPower(0);
         runtime.reset();
         while (runtime.seconds() < 2) {
-            stay(-39, -26, -90);
+            stay(-40, -28, -90);
         }
         runtime.reset();
         while (runtime.seconds() < 2) {
@@ -524,7 +527,7 @@ public class redright extends LinearOpMode {
         while (runtime.seconds() < 1) {
             stay(0, -3, 0);
             setBoxup();
-            setFlickerclose();
+//            setFlickerclose();
         }
 
         //move to line and drop purple pixel
@@ -533,14 +536,16 @@ public class redright extends LinearOpMode {
         while (runtime.seconds() < 3) {
             stay(-20, -28, -90);
         }
-        setFlickeropen();
+//        setFlickeropen();
+        intake.setPower(-0.5);
 
         //moving to backdrop
         setlift(500);
-        moveTo(-39, -23, -90, 8);
+        moveTo(-40, -23, -90, 8);
+        intake.setPower(0);
         runtime.reset();
         while (runtime.seconds() < 2) {
-            stay(-39, -23, -90);
+            stay(-40, -23, -90);
         }
         runtime.reset();
         while (runtime.seconds() < 2) {

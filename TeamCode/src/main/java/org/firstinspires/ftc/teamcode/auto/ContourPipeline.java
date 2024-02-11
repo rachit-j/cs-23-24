@@ -98,8 +98,15 @@ public class ContourPipeline extends OpenCvPipeline {
             );
             Mat croppedInput = new Mat(input, cropRect);
 
+            // Increase brightness by adding a constant value
+            double brightnessIncrease = 50; // Adjust this value as needed
+            Mat brightnessAdjusted = new Mat();
+            Core.addWeighted(croppedInput, 1.0, new Mat(croppedInput.size(), croppedInput.type(), new Scalar(brightnessIncrease, brightnessIncrease, brightnessIncrease)), 0.0, 0.0, brightnessAdjusted);
+            // Ensure pixel values remain within valid range
+            Core.convertScaleAbs(brightnessAdjusted, brightnessAdjusted);
+
             // Process Image
-            Imgproc.cvtColor(croppedInput, mat, Imgproc.COLOR_RGB2YCrCb);
+            Imgproc.cvtColor(brightnessAdjusted, mat, Imgproc.COLOR_RGB2YCrCb);
             Core.inRange(mat, scalarLowerYCrCb, scalarUpperYCrCb, processed);
             // Remove Noise
             Imgproc.morphologyEx(processed, processed, Imgproc.MORPH_OPEN, new Mat());
@@ -157,7 +164,7 @@ public class ContourPipeline extends OpenCvPipeline {
             }
             // Draw Rectangles If Area Is At Least 500
             if (first && maxRect.area() > 250) { // changed to 250 from 500
-                Imgproc.rectangle(input, maxRect, new Scalar(0, 255, 0), 2);
+                Imgproc.rectangle(input, maxRect, new Scalar(0, 255, 0), 5);
             }
             // Draw Borders
             Imgproc.rectangle(input, new Rect(
@@ -177,6 +184,8 @@ public class ContourPipeline extends OpenCvPipeline {
         }
         return input;
     }
+
+
     /*
     Synchronize these operations as the user code could be incorrect otherwise, i.e a property is read
     while the same rectangle is being processed in the pipeline, leading to some values being not
