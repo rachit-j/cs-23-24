@@ -50,6 +50,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.lang.Math.*;
 
 /**
  * This OpMode illustrates using a camera to locate and drive towards a specific AprilTag.
@@ -97,9 +98,9 @@ public class MoveToTag extends LinearOpMode
     final double STRAFE_GAIN =  0.03 ;   // 0.015 Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
     final double TURN_GAIN   =  0.005  ;   // 0.01 Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
-    final double MAX_AUTO_SPEED = 1;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_STRAFE= 1;   //  Clip the approach speed to this max value (adjust for your robot)
-    final double MAX_AUTO_TURN  = 0.35;   //  Clip the turn speed to this max value (adjust for your robot)
+    final double MAX_AUTO_SPEED = 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
+    final double MAX_AUTO_STRAFE= 0.05;   //  Clip the approach speed to this max value (adjust for your robot)
+    final double MAX_AUTO_TURN  = 0.25;   //  Clip the turn speed to this max value (adjust for your robot)
 
     private DcMotor fl   = null;  //  Used to control the left front drive wheel
     private DcMotor fr  = null;  //  Used to control the right front drive wheel
@@ -176,16 +177,21 @@ public class MoveToTag extends LinearOpMode
 
             // If Left Bumper is being pressed, AND we have found the desired target, Drive to target Automatically .
             if (gamepad1.left_bumper && targetFound) {
+                double error = 0.5;
+                double realx = desiredTag.ftcPose.range * Math.sin(desiredTag.ftcPose.bearing);
 
-                // Determine heading, range and Yaw (tag image rotation) error so we can use them to control the robot automatically.
-                double  rangeError      = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
-                double  headingError    = desiredTag.ftcPose.bearing;
-                double  yawError        = desiredTag.ftcPose.yaw;
 
-                // Use the speed and turn "gains" to calculate how we want the robot to move.
-                drive  = -Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
-                turn   = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN) ;
-                // strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
+                telemetry.addData("Pose x", desiredTag.ftcPose.x);
+                telemetry.addData("Pose y", desiredTag.ftcPose.y);
+
+                if (desiredTag.ftcPose.x < (0)) {
+                    telemetry.addLine("Off Center!");
+                }
+                if (desiredTag.ftcPose.y > (0 + error)) {
+                    telemetry.addLine("Move forward!");
+                }
+                telemetry.addData("realx", realx);
+
 
                 telemetry.addData("Auto","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
             } else {
@@ -195,11 +201,11 @@ public class MoveToTag extends LinearOpMode
                 strafe = -gamepad1.left_stick_x  / 2.0;  // Reduce strafe rate to 50%.
                 turn   = -gamepad1.right_stick_x / 3.0;  // Reduce turn rate to 33%.
                 telemetry.addData("Manual","Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
+                moveRobot(drive, strafe, turn);
             }
             telemetry.update();
-
             // Apply desired axes motions to the drivetrain.
-            moveRobot(drive, strafe, turn);
+
             sleep(10);
         }
     }
@@ -212,10 +218,10 @@ public class MoveToTag extends LinearOpMode
      */
     public void moveRobot(double x, double y, double yaw) {
         // Calculate wheel powers for strafing
-        double leftFrontPower  = x + y - yaw;
+        double leftFrontPower = x + y - yaw;
         double rightFrontPower = x - y + yaw;
-        double leftBackPower   = x - y - yaw;
-        double rightBackPower  = x + y + yaw;
+        double leftBackPower = x - y - yaw;
+        double rightBackPower = x + y + yaw;
 
         // Normalize wheel powers to be less than 1.0
         double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
