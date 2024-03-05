@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 public class odometry implements Runnable {
     //Odometry wheels
     private DcMotor encoderLeft, encoderRight, encoderAux;
-    IMU imu;
+//    IMU imu;
     double globalAngle;
 
 //    private double getAngle() {
@@ -29,11 +29,10 @@ public class odometry implements Runnable {
     //Sleep time interval (milliseconds) for the position update thread
     private int sleepTime;
 
-    public odometry(DcMotor encoderLeft, DcMotor encoderRight, DcMotor encoderAux, int threadSleepDelay, IMU imu){
+    public odometry(DcMotor encoderLeft, DcMotor encoderRight, DcMotor encoderAux, int threadSleepDelay){
         this.encoderLeft = encoderLeft;
         this.encoderRight = encoderRight;
         this.encoderAux = encoderAux;
-        this.imu = imu;
         sleepTime = threadSleepDelay;
     }
 

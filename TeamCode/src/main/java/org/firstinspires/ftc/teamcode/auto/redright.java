@@ -160,7 +160,7 @@ public class redright extends LinearOpMode {
         horizontal = hardwareMap.dcMotor.get("fr");
 
         //start odometry thread
-        update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
+        update = new odometry(verticalLeft, verticalRight, horizontal, 10);
         Thread positionThread = new Thread(update);
         positionThread.start();
 
