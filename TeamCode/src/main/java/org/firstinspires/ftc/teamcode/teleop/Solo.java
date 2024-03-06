@@ -121,7 +121,7 @@ public class Solo extends LinearOpMode {
         backlift.setPower(1);
 
         double boxdepositpos = 0.75;
-        double boxintakepos = 0.21;
+        double boxintakepos = 0.18;
         double intakeup = 0.73;
         double intakedown = 0.41;
 
@@ -172,6 +172,7 @@ public class Solo extends LinearOpMode {
                 leftboxarm.setPosition(boxintakepos);
                 rightboxarm.setPosition(boxintakepos);
                 auxrelease.setPosition(0);
+                mainrelease.setPosition(0.6);
             }
             if (gamepad1.dpad_up) {
                 setlift(1500);
@@ -184,11 +185,11 @@ public class Solo extends LinearOpMode {
             }
             if (gamepad1.right_bumper) {
                 mainrelease.setPosition(0.6);
-//                auxrelease.setPosition(0.8);
+                auxrelease.setPosition(0.8);
             }
             if (gamepad1.left_bumper) {
                 mainrelease.setPosition(0.45);
-//                auxrelease.setPosition(0.8);
+                auxrelease.setPosition(0.8);
             }
             if (gamepad1.x) {
                 mainrelease.setPosition(0.4);
