@@ -93,10 +93,8 @@ public class blueleft extends LinearOpMode {
     public double launcherrelease = 0.5;
     public double launcherclose = 1;
 
-    Servo leftbox;
-    Servo rightbox;
-    Servo leftflicker;
-    Servo rightflicker;
+
+
     Servo launcher;
     Servo deposit;
 
@@ -140,17 +138,10 @@ public class blueleft extends LinearOpMode {
         intake = hardwareMap.get(DcMotor.class, "intake");
 
         // servos
-        leftbox = hardwareMap.get(Servo.class, "leftbox");
-        rightbox = hardwareMap.get(Servo.class, "rightbox");
-        deposit = hardwareMap.get(Servo.class, "deposit");
 
         launcher = hardwareMap.get(Servo.class, "launcher");
-        leftflicker = hardwareMap.get(Servo.class, "leftflicker");
-        rightflicker = hardwareMap.get(Servo.class, "rightflicker");
 
-        leftbox.setDirection(Servo.Direction.REVERSE);
-        rightflicker.setDirection(Servo.Direction.REVERSE);
-        launcher.setDirection(Servo.Direction.REVERSE);
+
 
         //odometers
         verticalLeft = hardwareMap.dcMotor.get("fl");
@@ -221,6 +212,7 @@ public class blueleft extends LinearOpMode {
         }
 
         // init lifts
+
         leftlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -235,10 +227,6 @@ public class blueleft extends LinearOpMode {
         backlift.setPower(1);
 
 
-
-
-//        imu.resetYaw();
-//        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         telemetry.addData("RectArea: ", myPipeline.getRectArea());
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -430,7 +418,7 @@ public class blueleft extends LinearOpMode {
         telemetry.addLine("Autonomous A");
 
         // Phase 1: Dropping purple pixel
-        deposit.setPosition(1);
+        // deposit.setPosition(1);
         runtime.reset();
         while (runtime.seconds() < 1) {
             stay(0, -3, 0);
@@ -438,7 +426,7 @@ public class blueleft extends LinearOpMode {
         runtime.reset();
         while (runtime.seconds() < 1) {
             stay(0, -3, 0);
-            setBoxup();
+            // setBoxup();
 //            setFlickerclose();
         }
         moveTo(12, -30, 90, 8);
@@ -446,26 +434,27 @@ public class blueleft extends LinearOpMode {
         while (runtime.seconds() < 3) {
             stay(-2, -26, 90);
         }
-        intake.setPower(-0.5);
+        // intake.setPower(-0.5);
 //        setFlickeropen();
 
         //moving to backdrop
-        setlift(500);
+        // setlift(500);
         moveTo(39, -32, 90, 8);
-        intake.setPower(0);
+        // intake.setPower(0);
         runtime.reset();
         while (runtime.seconds() < 2) {
             stay(39, -32, 90);
         }
         runtime.reset();
-        while (runtime.seconds() < 2) {
+
+        /* while (runtime.seconds() < 2) {
             deposit.setPosition(0.5);
         }
 
         //parking
-        setlift(0);
+        setlift(0); */
         moveTo(12, -20, 90, 8);
-        setBoxdown();
+        // setBoxdown();
         moveTo(36, -3, 90, 0);
 
     }
@@ -473,7 +462,7 @@ public class blueleft extends LinearOpMode {
         telemetry.addLine("Autonomous B");
 
         // pick up purple pixel
-        deposit.setPosition(1);
+        // deposit.setPosition(1);
         runtime.reset();
         while (runtime.seconds() < 1) {
             stay(0, -3, 0);
@@ -481,7 +470,7 @@ public class blueleft extends LinearOpMode {
         runtime.reset();
         while (runtime.seconds() < 1) {
             stay(0, -3, 0);
-            setBoxup();
+            // setBoxup();
 //            setFlickerclose();
         }
 
@@ -491,33 +480,33 @@ public class blueleft extends LinearOpMode {
         while (runtime.seconds() < 3) {
             stay(12, -36, 90);
         }
-        intake.setPower(-0.5);
+        // intake.setPower(-0.5);
 //        setFlickeropen();
 
         //moving to backdrop
-        setlift(500);
+        //setlift(500);
         moveTo(39, -26, 90, 8);
-        intake.setPower(0);
+        //intake.setPower(0);
         runtime.reset();
         while (runtime.seconds() < 2) {
             stay(39, -26, 90);
         }
         runtime.reset();
-        while (runtime.seconds() < 2) {
+        /*while (runtime.seconds() < 2) {
             deposit.setPosition(0.5);
         }
 
         //parking
-        setlift(0);
+        setlift(0);*/
         moveTo(12, -20, 90, 8);
-        setBoxdown();
+        //setBoxdown();
         moveTo(36, -3, 90, 0);
 
     }
     public void AUTONOMOUS_A(){
         telemetry.addLine("Autonomous C");
         // pick up purple pixel
-        deposit.setPosition(1);
+        //deposit.setPosition(1);
         runtime.reset();
         while (runtime.seconds() < 1) {
             stay(0, -3, 0);
@@ -525,7 +514,7 @@ public class blueleft extends LinearOpMode {
         runtime.reset();
         while (runtime.seconds() < 1) {
             stay(0, -3, 0);
-            setBoxup();
+            //setBoxup();
 //            setFlickerclose();
         }
 
@@ -536,43 +525,29 @@ public class blueleft extends LinearOpMode {
             stay(20, -28, 90);
         }
 //        setFlickeropen();
-        intake.setPower(-0.5);
+        //intake.setPower(-0.5);
 
         //moving to backdrop
-        setlift(500);
+        //setlift(500);
         moveTo(39, -23, 90, 8);
-        intake.setPower(0);
+        //intake.setPower(0);
         runtime.reset();
         while (runtime.seconds() < 2) {
             stay(39, -23, 90);
         }
         runtime.reset();
-        while (runtime.seconds() < 2) {
+        /*while (runtime.seconds() < 2) {
             deposit.setPosition(0.5);
         }
 
         //parking
-        setlift(0);
+        setlift(0);*/
         moveTo(12, -20, 90, 8);
-        setBoxdown();
+        //setBoxdown();
         moveTo(36, -3, 90, 0);
     }
-    public void setFlickeropen(){
-        leftflicker.setPosition(flickeropen);
-        rightflicker.setPosition(flickeropen);
-    }
-    public void setFlickerclose(){
-        leftflicker.setPosition(flickerclose);
-        rightflicker.setPosition(flickerclose);
-    }
-    public void setBoxup(){
-        leftbox.setPosition(depositpos);
-        rightbox.setPosition(depositpos);
-    }
-    public void setBoxdown(){
-        leftbox.setPosition(intakepos);
-        rightbox.setPosition(intakepos);
-    }
+
+
     public void setlift(int targetValue) {
         leftlift.setTargetPosition(targetValue);
         rightlift.setTargetPosition(targetValue);

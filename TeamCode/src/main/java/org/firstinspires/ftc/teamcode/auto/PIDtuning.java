@@ -37,26 +37,12 @@ public class  PIDtuning extends LinearOpMode {
     private DcMotor fr = null;
     private DcMotor bl = null;
     private DcMotor br = null;
-
-
-
-    IMU imu;
     DcMotor verticalLeft, verticalRight, horizontal;
     final double COUNTS_PER_INCH = 336.877963;
     odometry update;
 
     @Override
     public void runOpMode() {
-
-        imu = hardwareMap.get(IMU.class, "imu");
-
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
-
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
-
 
         longPID = new PIDController(plong, ilong, dlong);
         latPID = new PIDController(plat, ilat, dlat);
@@ -84,13 +70,14 @@ public class  PIDtuning extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
-        imu.resetYaw();
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         resetRuntime();
 
         //start of auto
         while(opModeIsActive()){
-            moveTo(0, 0, 0, 0);
+            telemetry.addData("x cord", update.x() / COUNTS_PER_INCH);
+            telemetry.addData("y cord", update.y() / COUNTS_PER_INCH);
+            telemetry.addData("h cord", update.h());
+            telemetry.update();
         }
     }
 

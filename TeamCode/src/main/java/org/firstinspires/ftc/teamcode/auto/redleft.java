@@ -1,16 +1,13 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.odometry;
 import org.opencv.core.Scalar;
@@ -19,8 +16,8 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 
-@Autonomous(name="Red Right", group="Autonomous")
-public class redright extends LinearOpMode {
+@Autonomous(name="Red Left", group="Autonomous")
+public class redleft extends LinearOpMode {
 
     private PIDController longPID;
     private PIDController latPID;
@@ -69,9 +66,9 @@ public class redright extends LinearOpMode {
     double cy = 221.506;
 
 
-    private static double maxpowermove = 0.8;
-    private static double maxpowerstay = 0.6;
-    private static double maxpowerturn = 0.5;
+    private static double maxpowermove = 1; // 0.8
+    private static double maxpowerstay = 0.8; // 0.6
+    private static double maxpowerturn = 0.5; // 0.5
 
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor fl = null;
@@ -254,21 +251,7 @@ public class redright extends LinearOpMode {
             double rectMidpointX = myPipeline.getRectMidpointX();
             double screenThird = CAMERA_WIDTH / 3.0;
 
-            if(rectMidpointX > 2 * screenThird){
-                telemetry.addLine("OBJECT IS ON THE RIGHT SIDE");
-                telemetry.update();
-                AUTONOMOUS_C();
-            }
-            else if(rectMidpointX > screenThird){
-                telemetry.addLine("OBJECT IS IN THE MIDDLE");
-                telemetry.update();
-                AUTONOMOUS_B();
-            }
-            else {
-                telemetry.addLine("OBJECT IS ON THE LEFT SIDE");
-                telemetry.update();
-                AUTONOMOUS_A();
-            }
+            AUTONOMOUS_B();
 
             telemetry.update();
 
@@ -422,32 +405,176 @@ public class redright extends LinearOpMode {
             //setBoxup();
 //            setFlickerclose();
         }
-        moveTo(-12, -30, -90, 8);
+        moveTo(-4, -30, -90, 8);
         runtime.reset();
-        while (runtime.seconds() < 3) {
+        while (runtime.seconds() < 0.5) {
             stay(2, -26, -90);
         }
 //        setFlickeropen();
         //intake.setPower(-0.5);
 
-        //moving to backdrop
         //setlift(500);
-        moveTo(-40, -32, -90, 8);
-        //intake.setPower(0);
+        moveTo(0, -50, -90, 8);
         runtime.reset();
-        while (runtime.seconds() < 2) {
-            stay(-40, -32, -90);
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(6, -50, -90);
         }
         runtime.reset();
-        /*while (runtime.seconds() < 2) {
-            deposit.setPosition(0.5);
-        }
 
-        //parking
-        setlift(0);*/
-        moveTo(-12, -20, -90, 8);
-        //setBoxdown();
-        moveTo(-36, -3, -90, 0);
+        moveTo(14, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(20, -50, -90);
+        }
+        runtime.reset();
+
+        // pick 1 pixel
+
+        moveTo(-84, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -50, -90);
+        }
+        runtime.reset();
+
+        // check for other robot then go
+
+        moveTo(-84, -33, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -33, -90);
+        }
+        runtime.reset();
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -34, -90);
+        }
+        runtime.reset();
+
+        // Deposit here
+
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -34, -90);
+        }
+        runtime.reset();
+
+        moveTo(-84, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -50, -90);
+        }
+        runtime.reset();
+
+
+        // Loop 1
+        moveTo(14, -49, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(20, -49, -90);
+        }
+        runtime.reset();
+
+        // pick 2 pixels
+
+        moveTo(-84, -49, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -49, -90);
+        }
+        runtime.reset();
+
+        // check for other robot then go
+
+        moveTo(-84, -32, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -32, -90);
+        }
+        runtime.reset();
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -33, -90);
+        }
+        runtime.reset();
+
+        // Deposit here
+
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -32, -90);
+        }
+        runtime.reset();
+
+        moveTo(-84, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -48, -90);
+        }
+        runtime.reset();
+
+        // Loop 2
+        moveTo(14, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(20, -48, -90);
+        }
+        runtime.reset();
+
+        // pick 2 pixels
+
+        moveTo(-84, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -48, -90);
+        }
+        runtime.reset();
+
+        // check for other robot then go
+
+        moveTo(-84, -31, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -31, -90);
+        }
+        runtime.reset();
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -32, -90);
+        }
+        runtime.reset();
+
+        // Deposit here
+
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -32, -90);
+        }
+        runtime.reset();
+
+        moveTo(-84, -47, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -47, -90);
+        }
+        runtime.reset();
+
+        // Parking
+
+        moveTo(-88, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 30) {
+            stay(-89, -49, -90);
+        }
+        runtime.reset();
+
+
 
     }
     public void AUTONOMOUS_B(){
@@ -456,43 +583,185 @@ public class redright extends LinearOpMode {
         // pick up purple pixel
         //deposit.setPosition(1);
         runtime.reset();
-        while (runtime.seconds() < 1) {
+        while (runtime.seconds() < 0.5) {
             stay(0, -3, 0);
         }
         runtime.reset();
-        while (runtime.seconds() < 1) {
+        while (runtime.seconds() < 0.5) {
             stay(0, -3, 0);
             //setBoxup();
 //            setFlickerclose();
         }
 
         //move to line and drop purple pixel
-        moveTo(-12, -48, 0, 8);
+        moveTo(4, -48, 0, 8);
         runtime.reset();
-        while (runtime.seconds() < 3) {
-            stay(-12, -36, -90);
+        while (runtime.seconds() < 0.5) {
+            stay(4, -36, 0);
         }
 //        setFlickeropen();
         //intake.setPower(-0.5);
 
-        //moving to backdrop
-        //setlift(500);
-        moveTo(-40, -28, -90, 8);
-        //intake.setPower(0);
+        moveTo(4, -50, 0, 8);
         runtime.reset();
-        while (runtime.seconds() < 2) {
-            stay(-40, -28, -90);
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(6, -50, 0);
         }
         runtime.reset();
-        /*while (runtime.seconds() < 2) {
-            deposit.setPosition(0.5);
-        }
 
-        //parking
-        setlift(0);*/
-        moveTo(-12, -20, -90, 8);
-        //setBoxdown();
-        moveTo(-36, -3, -90, 0);
+        moveTo(14, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(20, -50, -90);
+        }
+        runtime.reset();
+
+        // pick 1 pixel
+
+        moveTo(-84, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -50, -90);
+        }
+        runtime.reset();
+
+        // check for other robot then go
+
+        moveTo(-84, -33, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -33, -90);
+        }
+        runtime.reset();
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -30, -90);
+        }
+        runtime.reset();
+
+        // Deposit here
+
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -34, -90);
+        }
+        runtime.reset();
+
+        moveTo(-84, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -50, -90);
+        }
+        runtime.reset();
+
+
+        // Loop 1
+        moveTo(14, -49, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(20, -49, -90);
+        }
+        runtime.reset();
+
+        // pick 2 pixels
+
+        moveTo(-84, -49, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -49, -90);
+        }
+        runtime.reset();
+
+        // check for other robot then go
+
+        moveTo(-84, -32, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -32, -90);
+        }
+        runtime.reset();
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -33, -90);
+        }
+        runtime.reset();
+
+        // Deposit here
+
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -32, -90);
+        }
+        runtime.reset();
+
+        moveTo(-84, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -48, -90);
+        }
+        runtime.reset();
+
+        // Loop 2
+        moveTo(14, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(20, -48, -90);
+        }
+        runtime.reset();
+
+        // pick 2 pixels
+
+        moveTo(-84, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -48, -90);
+        }
+        runtime.reset();
+
+        // check for other robot then go
+
+        moveTo(-84, -31, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -31, -90);
+        }
+        runtime.reset();
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -32, -90);
+        }
+        runtime.reset();
+
+        // Deposit here
+
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -32, -90);
+        }
+        runtime.reset();
+
+        moveTo(-84, -47, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -47, -90);
+        }
+        runtime.reset();
+
+        // Parking
+
+        moveTo(-88, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 30) {
+            stay(-89, -49, -90);
+        }
+        runtime.reset();
+
 
     }
     public void AUTONOMOUS_C(){
@@ -511,36 +780,181 @@ public class redright extends LinearOpMode {
         }
 
         //move to line and drop purple pixel
-        moveTo(-30, -20, 0, 8);
+        moveTo(-4, -30, 0, 8);
         runtime.reset();
         while (runtime.seconds() < 3) {
-            stay(-20, -28, -90);
-        }
-//        setFlickeropen();
-        //intake.setPower(-0.5);
-
-        //moving to backdrop
-        //setlift(500);
-        moveTo(-40, -23, -90, 8);
-        //intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 2) {
-            stay(-40, -23, -90);
+            stay(-4, -30, 90);
         }
         runtime.reset();
-        /*while (runtime.seconds() < 2) {
-            deposit.setPosition(0.5);
-        }
 
-        //parking
-        setlift(0);*/
-        moveTo(-12, -20, -90, 8);
-        //setBoxdown();
-        moveTo(-36, -3, -90, 0);
+        // move back
+        moveTo(0, -30, 0, 8);
+        runtime.reset();
+        while (runtime.seconds() < 3) {
+            stay(-0, -30, 90);
+        }
+        runtime.reset();
+
+        moveTo(0, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(6, -50, -90);
+        }
+        runtime.reset();
+
+        moveTo(14, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(20, -50, -90);
+        }
+        runtime.reset();
+
+        // pick 1 pixel
+
+        moveTo(-84, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -50, -90);
+        }
+        runtime.reset();
+
+        // check for other robot then go
+
+        moveTo(-84, -29, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -29, -90);
+        }
+        runtime.reset();
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -29, -90);
+        }
+        runtime.reset();
+
+        // Deposit here
+
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -29, -90);
+        }
+        runtime.reset();
+
+        moveTo(-84, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -50, -90);
+        }
+        runtime.reset();
+
+
+        // Loop 1
+        moveTo(14, -49, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(20, -49, -90);
+        }
+        runtime.reset();
+
+        // pick 2 pixels
+
+        moveTo(-84, -49, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -49, -90);
+        }
+        runtime.reset();
+
+        // check for other robot then go
+
+        moveTo(-84, -28, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -28, -90);
+        }
+        runtime.reset();
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -28, -90);
+        }
+        runtime.reset();
+
+        // Deposit here
+
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -27, -90);
+        }
+        runtime.reset();
+
+        moveTo(-84, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -48, -90);
+        }
+        runtime.reset();
+
+        // Loop 2
+        moveTo(14, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(20, -48, -90);
+        }
+        runtime.reset();
+
+        // pick 2 pixels
+
+        moveTo(-84, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -48, -90);
+        }
+        runtime.reset();
+
+        // check for other robot then go
+
+        moveTo(-84, -27, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -27, -90);
+        }
+        runtime.reset();
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -27, -90);
+        }
+        runtime.reset();
+
+        // Deposit here
+
+
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -27, -90);
+        }
+        runtime.reset();
+
+        moveTo(-84, -47, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-84, -47, -90);
+        }
+        runtime.reset();
+
+        // Parking
+
+        moveTo(-88, -48, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 30) {
+            stay(-89, -49, -90);
+        }
+        runtime.reset();
+
     }
-    public void setlift(int targetValue) {
-        leftlift.setTargetPosition(targetValue);
-        rightlift.setTargetPosition(targetValue);
-        backlift.setTargetPosition(targetValue);
-    }
+
 }
