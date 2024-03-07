@@ -261,7 +261,7 @@ public class blueleft extends LinearOpMode {
             double rectMidpointX = myPipeline.getRectMidpointX();
             double screenThird = CAMERA_WIDTH / 3.0;
 
-            if(rectMidpointX > 2 * screenThird){
+            /*if(rectMidpointX > 2 * screenThird){
                 telemetry.addLine("OBJECT IS ON THE RIGHT SIDE");
                 telemetry.update();
                 AUTONOMOUS_C();
@@ -275,7 +275,8 @@ public class blueleft extends LinearOpMode {
                 telemetry.addLine("OBJECT IS ON THE LEFT SIDE");
                 telemetry.update();
                 AUTONOMOUS_A();
-            }
+            }*/
+            AUTONOMOUS_C();
 
             telemetry.update();
 
@@ -449,10 +450,97 @@ public class blueleft extends LinearOpMode {
 
         /* while (runtime.seconds() < 2) {
             deposit.setPosition(0.5);
+        } */
+
+        moveTo(-50, -3, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(-50, -3, 90);
         }
+        runtime.reset();
+
+        moveTo(-64, -28, 112.5, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(-68, -31, 112.5);
+        }
+        runtime.reset();
+
+        // intake 2 pixels
+
+        moveTo(-50, -3, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(-50, -3, 90);
+        }
+        runtime.reset();
+
+        moveTo(0, -3, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(0, -3, 90);
+        }
+        runtime.reset();
+
+        moveTo(39, -32, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 2) {
+            stay(39, -32, 90);
+        }
+        runtime.reset();
+
+        // deposit
+
+        moveTo(-50, -10, 90, 4);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 2) {
+            stay(-50, -5, 90);
+        }
+        runtime.reset();
+
+        moveTo(-64, -28, 112.5, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(-68, -31, 112.5);
+        }
+        runtime.reset();
+
+        // intake 2 pixels
+
+        moveTo(-50, -5, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(-50, -5, 90);
+        }
+        runtime.reset();
+
+        moveTo(0, -5, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(0, -5, 90);
+        }
+        runtime.reset();
+
+        moveTo(39, -32, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 2) {
+            stay(39, -32, 90);
+        }
+        runtime.reset();
+
+        // deposit
 
         //parking
-        setlift(0); */
         moveTo(12, -20, 90, 8);
         // setBoxdown();
         moveTo(36, -3, 90, 0);
