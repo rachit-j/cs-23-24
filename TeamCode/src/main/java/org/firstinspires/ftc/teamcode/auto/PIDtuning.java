@@ -78,6 +78,8 @@ public class  PIDtuning extends LinearOpMode {
             telemetry.addData("y cord", update.y() / COUNTS_PER_INCH);
             telemetry.addData("h cord", update.h());
             telemetry.update();
+
+            moveTo(0, 0, 720, 0);
         }
     }
 
@@ -88,6 +90,7 @@ public class  PIDtuning extends LinearOpMode {
         while(opModeIsActive() && distance > error) {
             telemetry.addData("x: ", update.x() /COUNTS_PER_INCH);
             telemetry.addData("y: ", update.y() /COUNTS_PER_INCH);
+            telemetry.addData("h cord", update.h());
             telemetry.update();
             distance = Math.hypot(distanceX, distanceY);
             distanceX = targetX - (update.x() / COUNTS_PER_INCH);

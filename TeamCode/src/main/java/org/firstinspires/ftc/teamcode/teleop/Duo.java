@@ -103,6 +103,7 @@ public class Duo extends LinearOpMode {
         double boxintakepos = 0.18;
         double intakeup = 0.73;
         double intakedown = 0.41;
+        double intakehalfdown = 0.55;
         double modifier = 1;
 
         runtime.reset();
@@ -128,12 +129,30 @@ public class Duo extends LinearOpMode {
             br.setPower(modifier*(y + x - turn));
 
 
-            if (gamepad2.right_trigger > 0.5) {
+//            if (gamepad2.right_trigger > 0.8) {
+//                intake.setPower(1);
+//                leftintakearm.setPosition(intakedown);
+//                rightintakearm.setPosition(intakedown);
+//            }
+//            else if (gamepad2.right_trigger > 0.2) {
+//                intake.setPower(1);
+//                leftintakearm.setPosition(intakehalfdown);
+//                rightintakearm.setPosition(intakehalfdown);
+//            }
+//            else if (gamepad2.left_trigger > 0.5) {
+//                intake.setPower(-1);
+//            }
+//            else {
+//                intake.setPower(0);
+//                leftintakearm.setPosition(intakeup);
+//                rightintakearm.setPosition(intakeup);
+//            }
+            if (gamepad2.right_trigger > 0.1) {
                 intake.setPower(1);
-                leftintakearm.setPosition(intakedown);
-                rightintakearm.setPosition(intakedown);
+                leftintakearm.setPosition(intakeup - (gamepad2.right_trigger*0.32));
+                rightintakearm.setPosition(intakeup - (gamepad2.right_trigger*0.32));
             }
-            else if (gamepad2.left_trigger > 0.5) {
+            else if (gamepad2.left_trigger > 0.1) {
                 intake.setPower(-1);
             }
             else {
@@ -155,19 +174,19 @@ public class Duo extends LinearOpMode {
             }
 
             if (gamepad2.dpad_up) {
-                setlift(1500);
+                setlift(1800);
             }
             if (gamepad2.dpad_right) {
-                setlift(1000);
+                setlift(1200);
             }
             if (gamepad2.dpad_down) {
-                setlift(500);
+                setlift(600);
             }
             if (gamepad2.left_stick_y > 0.5) { //stick pointing down
-                setlift(leftlift.getCurrentPosition() - 100);
+                setlift(leftlift.getCurrentPosition() - 200);
             }
             if (gamepad2.left_stick_y < -0.5) {
-                setlift(leftlift.getCurrentPosition() + 100);
+                setlift(leftlift.getCurrentPosition() + 200);
             }
             if (gamepad2.right_bumper) {
                 mainrelease.setPosition(0.6);
@@ -179,7 +198,6 @@ public class Duo extends LinearOpMode {
             }
             if (gamepad2.x) {
                 mainrelease.setPosition(0.4);
-                auxrelease.setPosition(0.8);
             }
         }
     }
