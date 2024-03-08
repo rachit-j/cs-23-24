@@ -90,9 +90,9 @@ public class Solo extends LinearOpMode {
         mainrelease.setDirection(Servo.Direction.REVERSE);
 
         //start odometry thread
-        update = new odometry(verticalLeft, verticalRight, horizontal, 10);
-        Thread positionThread = new Thread(update);
-        positionThread.start();
+//        update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
+//        Thread positionThread = new Thread(update);
+//        positionThread.start();
 
 
         leftlift.setDirection(DcMotor.Direction.FORWARD);

@@ -107,14 +107,14 @@ public class redright extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-//        imu = hardwareMap.get(IMU.class, "imu");
-//
-//        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
-//        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
-//
-//        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-//
-//        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        imu = hardwareMap.get(IMU.class, "imu");
+
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
 
         longPID = new PIDController(plong, ilong, dlong);
@@ -140,7 +140,7 @@ public class redright extends LinearOpMode {
         horizontal = hardwareMap.dcMotor.get("fr");
 
         //start odometry thread
-        update = new odometry(verticalLeft, verticalRight, horizontal, 10);
+        update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
         Thread positionThread = new Thread(update);
         positionThread.start();
 
@@ -225,7 +225,7 @@ public class redright extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
-
+        imu.resetYaw();
 
         resetRuntime();
 

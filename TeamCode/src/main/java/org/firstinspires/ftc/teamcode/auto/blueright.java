@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -109,15 +110,13 @@ public class blueright extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        imu = hardwareMap.get(IMU.class, "imu");
 
-//        imu = hardwareMap.get(IMU.class, "imu");
-//
-//        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
-//        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
-//
-//        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-//
-//        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
+
 
 
         longPID = new PIDController(plong, ilong, dlong);
@@ -149,7 +148,7 @@ public class blueright extends LinearOpMode {
         horizontal = hardwareMap.dcMotor.get("fr");
 
         //start odometry thread
-        update = new odometry(verticalLeft, verticalRight, horizontal, 10);
+        update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
         Thread positionThread = new Thread(update);
         positionThread.start();
 
@@ -233,6 +232,7 @@ public class blueright extends LinearOpMode {
 
         waitForStart();
 
+        imu.resetYaw();
 
         resetRuntime();
 
@@ -261,7 +261,21 @@ public class blueright extends LinearOpMode {
             double rectMidpointX = myPipeline.getRectMidpointX();
             double screenThird = CAMERA_WIDTH / 3.0;
 
-            AUTONOMOUS_A();
+            if(rectMidpointX > 2 * screenThird){
+                telemetry.addLine("OBJECT IS ON THE RIGHT SIDE");
+                telemetry.update();
+                AUTONOMOUS_C();
+            }
+            else if(rectMidpointX > screenThird){
+                telemetry.addLine("OBJECT IS IN THE MIDDLE");
+                telemetry.update();
+                AUTONOMOUS_B();
+            }
+            else {
+                telemetry.addLine("OBJECT IS ON THE LEFT SIDE");
+                telemetry.update();
+                AUTONOMOUS_A();
+            }
 
             telemetry.update();
 

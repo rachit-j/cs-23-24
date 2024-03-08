@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -105,19 +106,14 @@ public class blueleft extends LinearOpMode {
 
 
 
-
-
     @Override
     public void runOpMode() {
 
-//        imu = hardwareMap.get(IMU.class, "imu");
-//
-//        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
-//        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
-//
-//        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-//
-//        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        imu = hardwareMap.get(IMU.class, "imu");
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
 
         longPID = new PIDController(plong, ilong, dlong);
@@ -149,7 +145,7 @@ public class blueleft extends LinearOpMode {
         horizontal = hardwareMap.dcMotor.get("fr");
 
         //start odometry thread
-        update = new odometry(verticalLeft, verticalRight, horizontal, 10);
+        update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
         Thread positionThread = new Thread(update);
         positionThread.start();
 
@@ -233,6 +229,7 @@ public class blueleft extends LinearOpMode {
 
         waitForStart();
 
+        imu.resetYaw();
 
         resetRuntime();
 

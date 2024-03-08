@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.odometry;
@@ -37,12 +38,38 @@ public class  PIDtuning extends LinearOpMode {
     private DcMotor fr = null;
     private DcMotor bl = null;
     private DcMotor br = null;
+
+    IMU imu;
     DcMotor verticalLeft, verticalRight, horizontal;
     final double COUNTS_PER_INCH = 336.877963;
     odometry update;
 
+    double globalAngle;
+    double oldangle = 0;
+    double currentangle = 0;
+
+    private double getAngle() {
+        currentangle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        double deltaAngle = currentangle - oldangle;
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+        globalAngle += deltaAngle;
+        oldangle = currentangle;
+        return globalAngle;
+    }
+
+
     @Override
     public void runOpMode() {
+        imu = hardwareMap.get(IMU.class, "imu");
+
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
+
 
         longPID = new PIDController(plong, ilong, dlong);
         latPID = new PIDController(plat, ilat, dlat);
@@ -63,13 +90,14 @@ public class  PIDtuning extends LinearOpMode {
         horizontal = hardwareMap.dcMotor.get("fr");
 
         //start odometry thread
-        update = new odometry(verticalLeft, verticalRight, horizontal, 10);
+        update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
         Thread positionThread = new Thread(update);
         positionThread.start();
 
         telemetry.update();
 
         waitForStart();
+        imu.resetYaw();
         resetRuntime();
 
         //start of auto
