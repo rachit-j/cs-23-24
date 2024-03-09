@@ -273,7 +273,7 @@ public class blueleft extends LinearOpMode {
                 telemetry.update();
                 AUTONOMOUS_A();
             }*/
-            AUTONOMOUS_C();
+            AUTONOMOUS_B();
 
             telemetry.update();
 
@@ -410,6 +410,51 @@ public class blueleft extends LinearOpMode {
         if(value > max){ value = max; }
         return value;
     }
+    public void STACKDEPOLOOP() {
+        moveTo(-50, -3, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(-50, -3, 90);
+        }
+        runtime.reset();
+
+        moveTo(-64, -26, 112.5, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(-68, -26, 112.5);
+        }
+        runtime.reset();
+
+        // intake 2 pixels
+
+        moveTo(-50, -3, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(-50, -3, 90);
+        }
+        runtime.reset();
+
+        moveTo(0, -3, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(0, -3, 90);
+        }
+        runtime.reset();
+
+        moveTo(39, -32, 90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 2) {
+            stay(39, -32, 90);
+        }
+        runtime.reset();
+
+        // deposit
+    }
 
 
     public void AUTONOMOUS_C(){
@@ -449,93 +494,9 @@ public class blueleft extends LinearOpMode {
             deposit.setPosition(0.5);
         } */
 
-        moveTo(-50, -3, 90, 8);
-        // intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(-50, -3, 90);
-        }
-        runtime.reset();
+        STACKDEPOLOOP();
 
-        moveTo(-64, -28, 112.5, 8);
-        // intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(-68, -31, 112.5);
-        }
-        runtime.reset();
-
-        // intake 2 pixels
-
-        moveTo(-50, -3, 90, 8);
-        // intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(-50, -3, 90);
-        }
-        runtime.reset();
-
-        moveTo(0, -3, 90, 8);
-        // intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(0, -3, 90);
-        }
-        runtime.reset();
-
-        moveTo(39, -32, 90, 8);
-        // intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 2) {
-            stay(39, -32, 90);
-        }
-        runtime.reset();
-
-        // deposit
-
-        moveTo(-50, -10, 90, 4);
-        // intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 2) {
-            stay(-50, -5, 90);
-        }
-        runtime.reset();
-
-        moveTo(-64, -28, 112.5, 8);
-        // intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(-68, -31, 112.5);
-        }
-        runtime.reset();
-
-        // intake 2 pixels
-
-        moveTo(-50, -5, 90, 8);
-        // intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(-50, -5, 90);
-        }
-        runtime.reset();
-
-        moveTo(0, -5, 90, 8);
-        // intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(0, -5, 90);
-        }
-        runtime.reset();
-
-        moveTo(39, -32, 90, 8);
-        // intake.setPower(0);
-        runtime.reset();
-        while (runtime.seconds() < 2) {
-            stay(39, -32, 90);
-        }
-        runtime.reset();
-
-        // deposit
+        STACKDEPOLOOP();
 
         //parking
         moveTo(12, -20, 90, 8);
@@ -579,7 +540,13 @@ public class blueleft extends LinearOpMode {
         runtime.reset();
         /*while (runtime.seconds() < 2) {
             deposit.setPosition(0.5);
-        }
+        } */
+
+        STACKDEPOLOOP();
+
+        STACKDEPOLOOP();
+
+        /*
 
         //parking
         setlift(0);*/
@@ -624,6 +591,14 @@ public class blueleft extends LinearOpMode {
         /*while (runtime.seconds() < 2) {
             deposit.setPosition(0.5);
         }
+
+        */
+
+        STACKDEPOLOOP();
+
+        STACKDEPOLOOP();
+
+        /*
 
         //parking
         setlift(0);*/

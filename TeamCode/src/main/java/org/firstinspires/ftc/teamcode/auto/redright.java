@@ -254,7 +254,7 @@ public class redright extends LinearOpMode {
             double rectMidpointX = myPipeline.getRectMidpointX();
             double screenThird = CAMERA_WIDTH / 3.0;
 
-            if(rectMidpointX > 2 * screenThird){
+            /*if(rectMidpointX > 2 * screenThird){
                 telemetry.addLine("OBJECT IS ON THE RIGHT SIDE");
                 telemetry.update();
                 AUTONOMOUS_C();
@@ -268,7 +268,9 @@ public class redright extends LinearOpMode {
                 telemetry.addLine("OBJECT IS ON THE LEFT SIDE");
                 telemetry.update();
                 AUTONOMOUS_A();
-            }
+            }*/
+
+            AUTONOMOUS_C();
 
             telemetry.update();
 
@@ -406,6 +408,52 @@ public class redright extends LinearOpMode {
         return value;
     }
 
+    public void STACKDEPOLOOP() {
+        moveTo(50, -3, -90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(50, -3, -90);
+        }
+        runtime.reset();
+
+        moveTo(64, -26, -112.5, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(68, -26, -112.5);
+        }
+        runtime.reset();
+
+        // intake 2 pixels
+
+        moveTo(50, -3, -90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(50, -3, -90);
+        }
+        runtime.reset();
+
+        moveTo(0, -3, -90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) {
+            stay(0, -3, -90);
+        }
+        runtime.reset();
+
+        moveTo(-39, -32, -90, 8);
+        // intake.setPower(0);
+        runtime.reset();
+        while (runtime.seconds() < 2) {
+            stay(-39, -32, -90);
+        }
+        runtime.reset();
+
+        // deposit
+    }
+
 
     public void AUTONOMOUS_A(){
         telemetry.addLine("Autonomous A");
@@ -442,6 +490,11 @@ public class redright extends LinearOpMode {
         /*while (runtime.seconds() < 2) {
             deposit.setPosition(0.5);
         }
+
+        */
+        STACKDEPOLOOP();
+        STACKDEPOLOOP();
+        /*
 
         //parking
         setlift(0);*/
@@ -488,6 +541,11 @@ public class redright extends LinearOpMode {
             deposit.setPosition(0.5);
         }
 
+        */
+        STACKDEPOLOOP();
+        STACKDEPOLOOP();
+        /*
+
         //parking
         setlift(0);*/
         moveTo(-12, -20, -90, 8);
@@ -531,6 +589,11 @@ public class redright extends LinearOpMode {
         /*while (runtime.seconds() < 2) {
             deposit.setPosition(0.5);
         }
+
+        */
+        STACKDEPOLOOP();
+        STACKDEPOLOOP();
+        /*
 
         //parking
         setlift(0);*/
