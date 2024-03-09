@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -81,7 +82,13 @@ public class redleft extends LinearOpMode {
     private DcMotor backlift = null;
     private DcMotor intake = null;
 
-
+    Servo leftintakearm;
+    Servo rightintakearm;
+    Servo mainrelease;
+    Servo auxrelease;
+    Servo leftboxarm;
+    Servo rightboxarm;
+    Servo launcher;
     public double count = 2; // Amount of white pixels
 
     // Control variables
@@ -119,36 +126,33 @@ public class redleft extends LinearOpMode {
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
-
-        RobotHardware robot = new RobotHardware(fl, fr, bl, br);
-        robot.innitHardwareMap();
-
-        // other motors
         leftlift = hardwareMap.get(DcMotor.class, "leftlift");
         rightlift = hardwareMap.get(DcMotor.class, "rightlift");
         backlift = hardwareMap.get(DcMotor.class, "backlift");
         intake = hardwareMap.get(DcMotor.class, "intake");
 
-        //odometers
+        leftintakearm = hardwareMap.get(Servo.class, "leftintakearm");
+        rightintakearm = hardwareMap.get(Servo.class, "rightintakearm");
+        mainrelease = hardwareMap.get(Servo.class, "mainrelease");
+        auxrelease = hardwareMap.get(Servo.class, "auxrelease");
+        leftboxarm = hardwareMap.get(Servo.class, "leftboxarm");
+        rightboxarm = hardwareMap.get(Servo.class, "rightboxarm");
+        launcher = hardwareMap.get(Servo.class, "launcher");
+
+        RobotHardware robot = new RobotHardware(fl, fr, bl, br, leftlift, rightlift, backlift, intake,
+                leftintakearm, rightintakearm, mainrelease, auxrelease, leftboxarm, rightboxarm, launcher);
+        robot.innitHardwareMap();
+
         verticalLeft = hardwareMap.dcMotor.get("fl");
         verticalRight = hardwareMap.dcMotor.get("br");
         horizontal = hardwareMap.dcMotor.get("fr");
+
 
         //start odometry thread
         update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
         Thread positionThread = new Thread(update);
         positionThread.start();
 
-        // Configure Motors
-        leftlift.setDirection(DcMotor.Direction.FORWARD);
-        rightlift.setDirection(DcMotor.Direction.REVERSE);
-        backlift.setDirection(DcMotor.Direction.REVERSE);
-        intake.setDirection(DcMotor.Direction.FORWARD);
-
-        leftlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         //start of camera code
         // OpenCV webcam
@@ -197,31 +201,13 @@ public class redleft extends LinearOpMode {
             telemetry.addData("Exception: ", myPipeline.debug);
         }
 
-        // init lifts
-        leftlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftlift.setTargetPosition(0);
-        rightlift.setTargetPosition(0);
-        backlift.setTargetPosition(0);
-        leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftlift.setPower(1);
-        rightlift.setPower(1);
-        backlift.setPower(1);
 
-
-
-//        imu.resetYaw();
-//        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         telemetry.addData("RectArea: ", myPipeline.getRectArea());
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
         waitForStart();
         imu.resetYaw();
-
         resetRuntime();
 
         //start of auto
@@ -401,6 +387,43 @@ public class redleft extends LinearOpMode {
         return value;
     }
 
+    public void STACKDEPOLOOP() {
+        moveTo(-80, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-80, -50, -90);
+        }
+        runtime.reset();
+
+        moveTo(14, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(17, -50, -90);
+        }
+        runtime.reset();
+
+        // pick 2 pixels here
+
+        //moving to backdrop
+        moveTo(-80, -50, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5) { // change time to 0.5
+            stay(-80, -50, -90);
+        }
+        runtime.reset();
+
+        // check for other robot then go
+
+        moveTo(-86, -34, -90, 8);
+        runtime.reset();
+        while (runtime.seconds() < 0.5 ) { // change time to 0.5
+            stay(-86, -34, -90);
+        }
+        runtime.reset();
+
+        // deposit
+    }
+
 
     public void AUTONOMOUS_A(){
         telemetry.addLine("Autonomous A");
@@ -467,108 +490,15 @@ public class redleft extends LinearOpMode {
         // Deposit here
 
 
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -34, -90);
-        }
-        runtime.reset();
-
-        moveTo(-84, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -50, -90);
-        }
-        runtime.reset();
+        STACKDEPOLOOP();
+        STACKDEPOLOOP();
 
 
-        // Loop 1
-        moveTo(14, -49, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(20, -49, -90);
-        }
-        runtime.reset();
-
-        // pick 2 pixels
-
-        moveTo(-84, -49, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -49, -90);
-        }
-        runtime.reset();
-
-        // check for other robot then go
-
-        moveTo(-84, -32, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -32, -90);
-        }
-        runtime.reset();
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -33, -90);
-        }
-        runtime.reset();
-
-        // Deposit here
-
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -32, -90);
-        }
-        runtime.reset();
-
-        moveTo(-84, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -48, -90);
-        }
-        runtime.reset();
-
-        // Loop 2
-        moveTo(14, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(20, -48, -90);
-        }
-        runtime.reset();
-
-        // pick 2 pixels
-
-        moveTo(-84, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -48, -90);
-        }
-        runtime.reset();
-
-        // check for other robot then go
-
-        moveTo(-84, -31, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -31, -90);
-        }
-        runtime.reset();
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -32, -90);
-        }
-        runtime.reset();
-
-        // Deposit here
-
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -32, -90);
-        }
-        runtime.reset();
+//        runtime.reset();
+//        while (runtime.seconds() < 0.5) { // change time to 0.5
+//            stay(-84, -32, -90);
+//        }
+//        runtime.reset();
 
         moveTo(-84, -47, -90, 8);
         runtime.reset();
@@ -655,108 +585,15 @@ public class redleft extends LinearOpMode {
         // Deposit here
 
 
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -34, -90);
-        }
-        runtime.reset();
+        STACKDEPOLOOP();
+        STACKDEPOLOOP();
 
-        moveTo(-84, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -50, -90);
-        }
-        runtime.reset();
-
-
-        // Loop 1
-        moveTo(14, -49, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(20, -49, -90);
-        }
-        runtime.reset();
-
-        // pick 2 pixels
-
-        moveTo(-84, -49, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -49, -90);
-        }
-        runtime.reset();
-
-        // check for other robot then go
-
-        moveTo(-84, -32, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -32, -90);
-        }
-        runtime.reset();
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -33, -90);
-        }
-        runtime.reset();
-
-        // Deposit here
-
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -32, -90);
-        }
-        runtime.reset();
-
-        moveTo(-84, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -48, -90);
-        }
-        runtime.reset();
-
-        // Loop 2
-        moveTo(14, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(20, -48, -90);
-        }
-        runtime.reset();
-
-        // pick 2 pixels
-
-        moveTo(-84, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -48, -90);
-        }
-        runtime.reset();
-
-        // check for other robot then go
-
-        moveTo(-84, -31, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -31, -90);
-        }
-        runtime.reset();
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -32, -90);
-        }
-        runtime.reset();
-
-        // Deposit here
-
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -32, -90);
-        }
-        runtime.reset();
+        // Parking
+//        runtime.reset();
+//        while (runtime.seconds() < 0.5) { // change time to 0.5
+//            stay(-84, -32, -90);
+//        }
+//        runtime.reset();
 
         moveTo(-84, -47, -90, 8);
         runtime.reset();
@@ -765,7 +602,7 @@ public class redleft extends LinearOpMode {
         }
         runtime.reset();
 
-        // Parking
+
 
         moveTo(-88, -48, -90, 8);
         runtime.reset();
@@ -848,108 +685,15 @@ public class redleft extends LinearOpMode {
         // Deposit here
 
 
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -29, -90);
-        }
-        runtime.reset();
+        STACKDEPOLOOP();
+        STACKDEPOLOOP();
 
-        moveTo(-84, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -50, -90);
-        }
-        runtime.reset();
-
-
-        // Loop 1
-        moveTo(14, -49, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(20, -49, -90);
-        }
-        runtime.reset();
-
-        // pick 2 pixels
-
-        moveTo(-84, -49, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -49, -90);
-        }
-        runtime.reset();
-
-        // check for other robot then go
-
-        moveTo(-84, -28, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -28, -90);
-        }
-        runtime.reset();
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -28, -90);
-        }
-        runtime.reset();
-
-        // Deposit here
-
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -27, -90);
-        }
-        runtime.reset();
-
-        moveTo(-84, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -48, -90);
-        }
-        runtime.reset();
-
-        // Loop 2
-        moveTo(14, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(20, -48, -90);
-        }
-        runtime.reset();
-
-        // pick 2 pixels
-
-        moveTo(-84, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -48, -90);
-        }
-        runtime.reset();
-
-        // check for other robot then go
-
-        moveTo(-84, -27, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -27, -90);
-        }
-        runtime.reset();
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -27, -90);
-        }
-        runtime.reset();
-
-        // Deposit here
-
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -27, -90);
-        }
-        runtime.reset();
+        // Parking
+//        runtime.reset();
+//        while (runtime.seconds() < 0.5) { // change time to 0.5
+//            stay(-84, -27, -90);
+//        }
+//        runtime.reset();
 
         moveTo(-84, -47, -90, 8);
         runtime.reset();
@@ -958,7 +702,6 @@ public class redleft extends LinearOpMode {
         }
         runtime.reset();
 
-        // Parking
 
         moveTo(-88, -48, -90, 8);
         runtime.reset();

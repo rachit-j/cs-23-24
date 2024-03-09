@@ -39,6 +39,18 @@ public class  PIDtuning extends LinearOpMode {
     private DcMotor bl = null;
     private DcMotor br = null;
 
+    private DcMotor leftlift = null;
+    private DcMotor rightlift = null;
+    private DcMotor backlift = null;
+    private DcMotor intake = null;
+    Servo leftintakearm;
+    Servo rightintakearm;
+    Servo mainrelease;
+    Servo auxrelease;
+    Servo leftboxarm;
+    Servo rightboxarm;
+    Servo launcher;
+
     IMU imu;
     DcMotor verticalLeft, verticalRight, horizontal;
     final double COUNTS_PER_INCH = 336.877963;
@@ -78,16 +90,27 @@ public class  PIDtuning extends LinearOpMode {
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
+        leftlift = hardwareMap.get(DcMotor.class, "leftlift");
+        rightlift = hardwareMap.get(DcMotor.class, "rightlift");
+        backlift = hardwareMap.get(DcMotor.class, "backlift");
+        intake = hardwareMap.get(DcMotor.class, "intake");
 
+        leftintakearm = hardwareMap.get(Servo.class, "leftintakearm");
+        rightintakearm = hardwareMap.get(Servo.class, "rightintakearm");
+        mainrelease = hardwareMap.get(Servo.class, "mainrelease");
+        auxrelease = hardwareMap.get(Servo.class, "auxrelease");
+        leftboxarm = hardwareMap.get(Servo.class, "leftboxarm");
+        rightboxarm = hardwareMap.get(Servo.class, "rightboxarm");
+        launcher = hardwareMap.get(Servo.class, "launcher");
 
-        RobotHardware robot = new RobotHardware(fl, fr, bl, br);
+        RobotHardware robot = new RobotHardware(fl, fr, bl, br, leftlift, rightlift, backlift, intake,
+                leftintakearm, rightintakearm, mainrelease, auxrelease, leftboxarm, rightboxarm, launcher);
         robot.innitHardwareMap();
-
-
         //odometers
         verticalLeft = hardwareMap.dcMotor.get("fl");
         verticalRight = hardwareMap.dcMotor.get("br");
         horizontal = hardwareMap.dcMotor.get("fr");
+
 
         //start odometry thread
         update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);

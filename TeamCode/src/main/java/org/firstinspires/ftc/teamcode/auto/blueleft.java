@@ -94,10 +94,13 @@ public class blueleft extends LinearOpMode {
     public double launcherrelease = 0.5;
     public double launcherclose = 1;
 
-
-
+    Servo leftintakearm;
+    Servo rightintakearm;
+    Servo mainrelease;
+    Servo auxrelease;
+    Servo leftboxarm;
+    Servo rightboxarm;
     Servo launcher;
-    Servo deposit;
 
     IMU imu;
     DcMotor verticalLeft, verticalRight, horizontal;
@@ -123,42 +126,32 @@ public class blueleft extends LinearOpMode {
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
-
-        RobotHardware robot = new RobotHardware(fl, fr, bl, br);
-        robot.innitHardwareMap();
-
-        // other motors
         leftlift = hardwareMap.get(DcMotor.class, "leftlift");
         rightlift = hardwareMap.get(DcMotor.class, "rightlift");
         backlift = hardwareMap.get(DcMotor.class, "backlift");
         intake = hardwareMap.get(DcMotor.class, "intake");
 
-        // servos
-
+        leftintakearm = hardwareMap.get(Servo.class, "leftintakearm");
+        rightintakearm = hardwareMap.get(Servo.class, "rightintakearm");
+        mainrelease = hardwareMap.get(Servo.class, "mainrelease");
+        auxrelease = hardwareMap.get(Servo.class, "auxrelease");
+        leftboxarm = hardwareMap.get(Servo.class, "leftboxarm");
+        rightboxarm = hardwareMap.get(Servo.class, "rightboxarm");
         launcher = hardwareMap.get(Servo.class, "launcher");
 
+        RobotHardware robot = new RobotHardware(fl, fr, bl, br, leftlift, rightlift, backlift, intake,
+                leftintakearm, rightintakearm, mainrelease, auxrelease, leftboxarm, rightboxarm, launcher);
+        robot.innitHardwareMap();
 
-
-        //odometers
         verticalLeft = hardwareMap.dcMotor.get("fl");
         verticalRight = hardwareMap.dcMotor.get("br");
         horizontal = hardwareMap.dcMotor.get("fr");
+
 
         //start odometry thread
         update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
         Thread positionThread = new Thread(update);
         positionThread.start();
-
-        // Configure Motors
-        leftlift.setDirection(DcMotor.Direction.FORWARD);
-        rightlift.setDirection(DcMotor.Direction.REVERSE);
-        backlift.setDirection(DcMotor.Direction.REVERSE);
-        intake.setDirection(DcMotor.Direction.FORWARD);
-
-        leftlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         //start of camera code
         // OpenCV webcam
@@ -207,20 +200,6 @@ public class blueleft extends LinearOpMode {
             telemetry.addData("Exception: ", myPipeline.debug);
         }
 
-        // init lifts
-
-        leftlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftlift.setTargetPosition(0);
-        rightlift.setTargetPosition(0);
-        backlift.setTargetPosition(0);
-        leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftlift.setPower(1);
-        rightlift.setPower(1);
-        backlift.setPower(1);
 
 
         telemetry.addData("RectArea: ", myPipeline.getRectArea());
@@ -258,7 +237,7 @@ public class blueleft extends LinearOpMode {
             double rectMidpointX = myPipeline.getRectMidpointX();
             double screenThird = CAMERA_WIDTH / 3.0;
 
-            /*if(rectMidpointX > 2 * screenThird){
+            if(rectMidpointX > 2 * screenThird){
                 telemetry.addLine("OBJECT IS ON THE RIGHT SIDE");
                 telemetry.update();
                 AUTONOMOUS_C();
@@ -272,8 +251,8 @@ public class blueleft extends LinearOpMode {
                 telemetry.addLine("OBJECT IS ON THE LEFT SIDE");
                 telemetry.update();
                 AUTONOMOUS_A();
-            }*/
-            AUTONOMOUS_B();
+            }
+//            AUTONOMOUS_B();
 
             telemetry.update();
 

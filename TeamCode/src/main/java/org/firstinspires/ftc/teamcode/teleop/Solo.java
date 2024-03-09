@@ -48,6 +48,7 @@ public class Solo extends LinearOpMode {
     Servo auxrelease;
     Servo leftboxarm;
     Servo rightboxarm;
+    Servo launcher;
 
     DcMotor verticalLeft, verticalRight, horizontal;
     final double COUNTS_PER_INCH = 336.877963;
@@ -70,7 +71,16 @@ public class Solo extends LinearOpMode {
         backlift = hardwareMap.get(DcMotor.class, "backlift");
         intake = hardwareMap.get(DcMotor.class, "intake");
 
-        RobotHardware robot = new RobotHardware(fl, fr, bl, br);
+        leftintakearm = hardwareMap.get(Servo.class, "leftintakearm");
+        rightintakearm = hardwareMap.get(Servo.class, "rightintakearm");
+        mainrelease = hardwareMap.get(Servo.class, "mainrelease");
+        auxrelease = hardwareMap.get(Servo.class, "auxrelease");
+        leftboxarm = hardwareMap.get(Servo.class, "leftboxarm");
+        rightboxarm = hardwareMap.get(Servo.class, "rightboxarm");
+        launcher = hardwareMap.get(Servo.class, "launcher");
+
+        RobotHardware robot = new RobotHardware(fl, fr, bl, br, leftlift, rightlift, backlift, intake,
+                leftintakearm, rightintakearm, mainrelease, auxrelease, leftboxarm, rightboxarm, launcher);
         robot.innitHardwareMap();
 
         //odometers
@@ -78,12 +88,6 @@ public class Solo extends LinearOpMode {
         verticalRight = hardwareMap.dcMotor.get("br");
         horizontal = hardwareMap.dcMotor.get("fr");
 
-        leftintakearm = hardwareMap.get(Servo.class, "leftintakearm");
-        rightintakearm = hardwareMap.get(Servo.class, "rightintakearm");
-        mainrelease = hardwareMap.get(Servo.class, "mainrelease");
-        auxrelease = hardwareMap.get(Servo.class, "auxrelease");
-        leftboxarm = hardwareMap.get(Servo.class, "leftboxarm");
-        rightboxarm = hardwareMap.get(Servo.class, "rightboxarm");
 
         leftintakearm.setDirection(Servo.Direction.REVERSE);
         leftboxarm.setDirection(Servo.Direction.REVERSE);
@@ -95,30 +99,8 @@ public class Solo extends LinearOpMode {
 //        positionThread.start();
 
 
-        leftlift.setDirection(DcMotor.Direction.FORWARD);
-        rightlift.setDirection(DcMotor.Direction.REVERSE);
-        backlift.setDirection(DcMotor.Direction.REVERSE);
-        intake.setDirection(DcMotor.Direction.FORWARD);
-
-        leftlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
         waitForStart();
 
-        leftlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftlift.setTargetPosition(0);
-        rightlift.setTargetPosition(0);
-        backlift.setTargetPosition(0);
-        leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftlift.setPower(1);
-        rightlift.setPower(1);
-        backlift.setPower(1);
 
         double boxdepositpos = 0.75;
         double boxintakepos = 0.18;
