@@ -69,16 +69,13 @@ public class blueright extends LinearOpMode {
     double cx = 402.145;
     double cy = 221.506;
 
-
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor fl = null; private DcMotor fr = null; private DcMotor bl = null; private DcMotor br = null;
     private DcMotor leftlift = null; private DcMotor rightlift = null; private DcMotor backlift = null; private DcMotor intake = null;
-
     Servo leftintakearm; Servo rightintakearm;
     Servo mainrelease; Servo auxrelease;
     Servo leftboxarm; Servo rightboxarm;
     Servo launcher;
-
     IMU imu;
     DcMotor verticalLeft, verticalRight, horizontal;
     final double COUNTS_PER_INCH = 336.877963;
@@ -213,7 +210,6 @@ public class blueright extends LinearOpMode {
                 telemetry.update();
                 AUTONOMOUS_A();
             }
-            runtime.reset();
         }
     }
 
@@ -363,14 +359,20 @@ public class blueright extends LinearOpMode {
         moveTo(80, -52, 90, 8);
         moveTo(90, -50, 90, 0);
     }
+    public void MOVETOBACKDROP(){
+        moveTo(60, -50, 90, 8);
+        intake.setPower(0);
+        robot.boxup();
+        runtime.reset(); while (runtime.seconds() < 1) {stay(60, -50, 90);}
+    }
 
     public void AUTONOMOUS_C(){
         telemetry.addLine("Autonomous C");
 
         //dropping purple pixel
         moveTo(0, -40, 0, 4);
-        moveTo(-11, -44, 0, 4);
-        runtime.reset(); while(runtime.seconds() < 1) {stay(-11, -44, 0);}
+        moveTo(-11, -46, 0, 4);
+        runtime.reset(); while(runtime.seconds() < 1) {stay(-11, -46, 0);}
         runtime.reset(); while(runtime.seconds() < 0.5) {intake.setPower(-0.5);}
 
         //move to stack and get white pixel
@@ -386,10 +388,7 @@ public class blueright extends LinearOpMode {
         robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
 
         //moving to backdrop
-        moveTo(60, -50, 90, 8);
-        intake.setPower(0);
-        robot.boxup();
-        runtime.reset(); while (runtime.seconds() < 0.5) {stay(60, -50, 90);}
+        MOVETOBACKDROP();
 
         //move to deposit position
         runtime.reset(); while (runtime.seconds() < 2) {stay(85, -33, 90);}
@@ -429,10 +428,7 @@ public class blueright extends LinearOpMode {
         robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
 
         //moving to backdrop
-        moveTo(60, -50, 90, 8);
-        intake.setPower(0);
-        robot.boxup();
-        runtime.reset(); while (runtime.seconds() < 0.5) {stay(60, -50, 90);}
+        MOVETOBACKDROP();
 
         //move to deposit position
         runtime.reset(); while (runtime.seconds() < 2) {stay(85, -29, 90);}
@@ -474,10 +470,7 @@ public class blueright extends LinearOpMode {
         robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
 
         //moving to backdrop
-        moveTo(60, -50, 90, 8);
-        intake.setPower(0);
-        robot.boxup();
-        runtime.reset(); while (runtime.seconds() < 0.5) {stay(60, -50, 90);}
+        MOVETOBACKDROP();
 
         //move to deposit position
         runtime.reset(); while (runtime.seconds() < 2) {stay(85, -24, 90);}

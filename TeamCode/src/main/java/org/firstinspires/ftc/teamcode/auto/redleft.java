@@ -23,9 +23,11 @@ public class redleft extends LinearOpMode {
 
     private PIDController longPID;
     private PIDController latPID;
-    public static double plong = 0.05, ilong = 0, dlong = 3*Math.pow(10, -9);
-    public static double plat = 0.15, ilat = 0, dlat = 3*Math.pow(10, -9);
-
+    public static double plong = 0.12, ilong = 0.8, dlong = 3*Math.pow(10, -9);
+    public static double plat = 0.18, ilat = 0.8, dlat = 3*Math.pow(10, -9);
+    private static double maxpowermove = 0.8;
+    private static double maxpowerstay = 0.5;
+    private static double maxpowerturn = 0.3;
     private OpenCvCamera webcam;
 
     private static final int CAMERA_WIDTH  = 2304; // width  of wanted camera resolution
@@ -48,9 +50,9 @@ public class redleft extends LinearOpMode {
     public static Scalar scalarLowerYCrCb = new Scalar(  0.0, 160.0, 100.0);
     public static Scalar scalarUpperYCrCb = new Scalar(255.0, 255.0, 255.0);
 
-    // Blue Range                                      Y      Cr     Cb
-    // public static Scalar scalarLowerYCrCb = new Scalar(0.0, 0.0, 140.0);
-    // public static Scalar scalarUpperYCrCb = new Scalar(255.0, 100.0, 255.0);
+//    // Blue Range                                      Y      Cr     Cb
+//    public static Scalar scalarLowerYCrCb = new Scalar(0.0, 0.0, 140.0);
+//    public static Scalar scalarUpperYCrCb = new Scalar(255.0, 100.0, 255.0);
 
 
     // Yellow Range
@@ -67,57 +69,28 @@ public class redleft extends LinearOpMode {
     double cx = 402.145;
     double cy = 221.506;
 
-
-    private static double maxpowermove = 1; // 0.8
-    private static double maxpowerstay = 0.8; // 0.6
-    private static double maxpowerturn = 0.5; // 0.5
-
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor fl = null;
-    private DcMotor fr = null;
-    private DcMotor bl = null;
-    private DcMotor br = null;
-    private DcMotor leftlift = null;
-    private DcMotor rightlift = null;
-    private DcMotor backlift = null;
-    private DcMotor intake = null;
-
-    Servo leftintakearm;
-    Servo rightintakearm;
-    Servo mainrelease;
-    Servo auxrelease;
-    Servo leftboxarm;
-    Servo rightboxarm;
+    private DcMotor fl = null; private DcMotor fr = null; private DcMotor bl = null; private DcMotor br = null;
+    private DcMotor leftlift = null; private DcMotor rightlift = null; private DcMotor backlift = null; private DcMotor intake = null;
+    Servo leftintakearm; Servo rightintakearm;
+    Servo mainrelease; Servo auxrelease;
+    Servo leftboxarm; Servo rightboxarm;
     Servo launcher;
-    public double count = 2; // Amount of white pixels
-
-    // Control variables
-    public double depositpos = 0.8;
-    public double intakepos = 0.245;
-    public int boxstate = 0;
-    public double flickerclose = 0.35;
-    public double flickeropen = 0.8;
-    public double launcherrelease = 0.5;
-    public double launcherclose = 1;
-
     IMU imu;
     DcMotor verticalLeft, verticalRight, horizontal;
     final double COUNTS_PER_INCH = 336.877963;
     odometry update;
-
-
-
-
+    RobotHardware robot;
 
     @Override
     public void runOpMode() {
-
         imu = hardwareMap.get(IMU.class, "imu");
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
-
+        imu.resetYaw();
+        sleep(1000);
 
         longPID = new PIDController(plong, ilong, dlong);
         latPID = new PIDController(plat, ilat, dlat);
@@ -139,7 +112,7 @@ public class redleft extends LinearOpMode {
         rightboxarm = hardwareMap.get(Servo.class, "rightboxarm");
         launcher = hardwareMap.get(Servo.class, "launcher");
 
-        RobotHardware robot = new RobotHardware(fl, fr, bl, br, leftlift, rightlift, backlift, intake,
+        robot = new RobotHardware(fl, fr, bl, br, leftlift, rightlift, backlift, intake,
                 leftintakearm, rightintakearm, mainrelease, auxrelease, leftboxarm, rightboxarm, launcher);
         robot.innitHardwareMap();
 
@@ -147,12 +120,10 @@ public class redleft extends LinearOpMode {
         verticalRight = hardwareMap.dcMotor.get("br");
         horizontal = hardwareMap.dcMotor.get("fr");
 
-
         //start odometry thread
         update = new odometry(verticalLeft, verticalRight, horizontal, 10, imu);
         Thread positionThread = new Thread(update);
         positionThread.start();
-
 
         //start of camera code
         // OpenCV webcam
@@ -179,7 +150,6 @@ public class redleft extends LinearOpMode {
                 telemetry.addData("There is an error: ", errorCode);
             }
         });
-
         telemetry.update();
 
 //        double rectMidpointX = myPipeline.getRectMidpointX();
@@ -192,33 +162,24 @@ public class redleft extends LinearOpMode {
 //        } else {
 //            telemetry.addLine("OBJECT IS ON THE LEFT SIDE");
 //        }
-
-        telemetry.update();
-
         // Camera Stuff
         myPipeline.configureBorders(borderLeftX, borderRightX, borderTopY, borderBottomY);
         if(myPipeline.error){
             telemetry.addData("Exception: ", myPipeline.debug);
         }
 
-
         telemetry.addData("RectArea: ", myPipeline.getRectArea());
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
         waitForStart();
-        imu.resetYaw();
         resetRuntime();
 
         //start of auto
         while(opModeIsActive()){
-            // Lift & Position Telemetry
-//            telemetry.addData("leftlift: ", leftlift.getCurrentPosition());
-//            telemetry.addData("rightlift: ", rightlift.getCurrentPosition());
-//            telemetry.addData("backlift: ", backlift.getCurrentPosition());
-//            telemetry.addData("x: ", update.x() / COUNTS_PER_INCH);
-//            telemetry.addData("y: ", update.y() / COUNTS_PER_INCH);
-//            telemetry.addData("h: ", update.h());
+            robot.boxtransferready();
+            robot.boxdown();
+            robot.intakeup();
 
             // Camera Stuff
             myPipeline.configureBorders(borderLeftX, borderRightX, borderTopY, borderBottomY);
@@ -230,7 +191,6 @@ public class redleft extends LinearOpMode {
 
             telemetry.addData("RectArea: ", myPipeline.getRectArea());
             telemetry.update();
-
 
             double rectMidpointX = myPipeline.getRectMidpointX();
             double screenThird = CAMERA_WIDTH / 3.0;
@@ -250,14 +210,7 @@ public class redleft extends LinearOpMode {
                 telemetry.update();
                 AUTONOMOUS_A();
             }
-
-            telemetry.update();
-
-            runtime.reset();
-
-
         }
-
     }
 
     public void moveTo(double targetX, double targetY, double targetOrientation, double error) {
@@ -265,6 +218,11 @@ public class redleft extends LinearOpMode {
         double distanceY = targetY - (update.y() / COUNTS_PER_INCH);
         double distance = Math.hypot(distanceX, distanceY);
         while(opModeIsActive() && distance > error) {
+            telemetry.addData("x: ", update.x() /COUNTS_PER_INCH);
+            telemetry.addData("y: ", update.y() /COUNTS_PER_INCH);
+            telemetry.addData("h cord", update.h());
+            telemetry.update();
+
             distance = Math.hypot(distanceX, distanceY);
             distanceX = targetX - (update.x() / COUNTS_PER_INCH);
             distanceY = targetY - (update.y() / COUNTS_PER_INCH);
@@ -282,27 +240,10 @@ public class redleft extends LinearOpMode {
                 longPID.reset();
                 latPID.reset();
             }
-            if (x > maxpowermove) {
-                x = maxpowermove;
-            }
-            else if (x < -maxpowermove) {
-                x = -maxpowermove;
-            }
-            else x = x;
-            if (y > maxpowermove) {
-                y = maxpowermove;
-            }
-            else if (y < -maxpowermove) {
-                y = -maxpowermove;
-            }
-            else y = y;
-            if (turn > maxpowerturn) {
-                turn = maxpowerturn;
-            }
-            else if (turn < -maxpowerturn) {
-                turn = -maxpowerturn;
-            }
-            else turn = turn;
+            if (x > maxpowermove) {x = maxpowermove;} else if (x < -maxpowermove) {x = -maxpowermove;} else x = x;
+            if (y > maxpowermove) {y = maxpowermove;} else if (y < -maxpowermove) {y = -maxpowermove;} else y = y;
+            if (turn > maxpowerturn) {turn = maxpowerturn;} else if (turn < -maxpowerturn) {turn = -maxpowerturn;} else turn = turn;
+
             double l = y * Math.sin(theta + (Math.PI/4)) - x * Math.sin(theta - (Math.PI/4));
             double r = y * Math.cos(theta + (Math.PI/4)) - x * Math.cos(theta - (Math.PI/4));
             fl.setPower(l + turn);
@@ -315,34 +256,29 @@ public class redleft extends LinearOpMode {
         }
     }
     public void stay(double targetX, double targetY, double targetOrientation) {
-        double distanceX = targetX - (update.x() / COUNTS_PER_INCH);
-        double distanceY = targetY - (update.y() / COUNTS_PER_INCH);
-        double x = 0.2 * distanceX;
-        double y = 0.2 * distanceY;
+        telemetry.addData("x: ", update.x() /COUNTS_PER_INCH);
+        telemetry.addData("y: ", update.y() /COUNTS_PER_INCH);
+        telemetry.addData("h cord", update.h());
+        telemetry.update();
+        double currentX = update.x() / COUNTS_PER_INCH;
+        double currentY = update.y() / COUNTS_PER_INCH;
+        double distanceX = targetX - currentX;
+        double distanceY = targetY - currentY;
+
+        longPID.setPID(plong, ilong, dlong);
+        latPID.setPID(plat, ilat, dlat);
+        double x = longPID.calculate(currentX, targetX);
+        double y = latPID.calculate(currentY, targetY);
         double turn = 0.03 * (update.h() - targetOrientation);
         double theta = Math.toRadians(update.h());
+        if (Math.abs(distanceX) < 1 || Math.abs(distanceY) < 1) {
+            longPID.reset();
+            latPID.reset();
+        }
 
-        if (x > maxpowerstay) {
-            x = maxpowerstay;
-        }
-        else if (x < -maxpowerstay) {
-            x = -maxpowerstay;
-        }
-        else x = x;
-        if (y > maxpowerstay) {
-            y = maxpowerstay;
-        }
-        else if (y < -maxpowerstay) {
-            y = -maxpowerstay;
-        }
-        else y = y;
-        if (turn > maxpowerturn) {
-            turn = maxpowerturn;
-        }
-        else if (turn < -maxpowerturn) {
-            turn = -maxpowerturn;
-        }
-        else turn = turn;
+        if (x > maxpowerstay) {x = maxpowerstay;} else if (x < -maxpowerstay) {x = -maxpowerstay;} else x = x;
+        if (y > maxpowerstay) {y = maxpowerstay;} else if (y < -maxpowerstay) {y = -maxpowerstay;} else y = y;
+        if (turn > maxpowerturn) {turn = maxpowerturn;} else if (turn < -maxpowerturn) {turn = -maxpowerturn;} else turn = turn;
 
         double l = y * Math.sin(theta + (Math.PI/4)) - x * Math.sin(theta - (Math.PI/4));
         double r = y * Math.cos(theta + (Math.PI/4)) - x * Math.cos(theta - (Math.PI/4));
@@ -387,329 +323,170 @@ public class redleft extends LinearOpMode {
         return value;
     }
 
-    public void STACKDEPOLOOP() {
+    public void CYCLE() {
+        //move to stack and get 2 white pixels
         moveTo(-80, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-80, -50, -90);
-        }
-        runtime.reset();
+        intake.setPower(1); robot.boxintakeready(); robot.intakedown();
+        moveTo(15, -56, -90, 4);
+        runtime.reset(); while (runtime.seconds() < 1) {stay(15, -56, -90);}
+        moveTo(22, -56, -90, 2);
+        moveTo(22, -38, -90, 4);
+        moveTo(22, -56, -90, 4);
 
-        moveTo(14, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(17, -50, -90);
-        }
-        runtime.reset();
-
-        // pick 2 pixels here
+        //reset intake arm, lock box, reverse intake
+        robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
 
         //moving to backdrop
-        moveTo(-80, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-80, -50, -90);
+        moveTo(-60, -50, -90, 8);
+        intake.setPower(0);
+        robot.boxup();
+        robot.setlift(500);
+        runtime.reset(); while (runtime.seconds() < 1) {stay(-60, -50, -90);}
+
+        //move to deposit position
+        runtime.reset(); while (runtime.seconds() < 2 ) {stay(-85, -32, -90);}
+
+        //deposit
+        runtime.reset(); while (runtime.seconds() < 1) {stay(-88, -32, -90);}
+        runtime.reset(); while (runtime.seconds() < 0.5) {
+            stay(-88, -32, -90);
+            robot.releasetwo();
         }
-        runtime.reset();
 
-        // check for other robot then go
-
-        moveTo(-86, -34, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5 ) { // change time to 0.5
-            stay(-86, -34, -90);
-        }
-        runtime.reset();
-
-        // deposit
+        //parking
+        robot.boxdown();
+        robot.setlift(0);
+        moveTo(-80, -52, -90, 8);
+        moveTo(-90, -50, -90, 0);
+    }
+    public void MOVETOBACKDROP(){
+        moveTo(-60, -50, -90, 8);
+        intake.setPower(0);
+        robot.boxup();
+        runtime.reset(); while (runtime.seconds() < 1) {stay(-60, -50, -90);}
     }
 
-
     public void AUTONOMOUS_A(){
-        telemetry.addLine("Autonomous A");
+        telemetry.addLine("Autonomous C");
 
-        // Phase 1: Dropping purple pixel
-        //deposit.setPosition(1);
-        runtime.reset();
-        while (runtime.seconds() < 1) {
-            stay(0, -3, 0);
+        //dropping purple pixel
+        moveTo(0, -40, 0, 4);
+        moveTo(11, -46, 0, 4);
+        runtime.reset(); while(runtime.seconds() < 1) {stay(11, -46, 0);}
+        runtime.reset(); while(runtime.seconds() < 0.5) {intake.setPower(-0.5);}
+
+        //move to stack and get white pixel
+        moveTo(0, -50, -90, 4);
+        intake.setPower(1); robot.boxintakeready(); robot.intakedown();
+        moveTo(15, -56, -90, 4);
+        runtime.reset(); while (runtime.seconds() < 0.5) {stay(15, -56, -90);}
+        moveTo(22, -56, -90, 2);
+        moveTo(22, -44, -90, 4);
+        moveTo(22, -56, -90, 4);
+
+        //reset intake arm, lock box, reverse intake
+        robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
+
+        //moving to backdrop
+        MOVETOBACKDROP();
+
+        //move to deposit position
+        runtime.reset(); while (runtime.seconds() < 2) {stay(-85, -33, -90);}
+
+        //deposit
+        runtime.reset(); while (runtime.seconds() < 0.5) {stay(-88, -34, -90);}
+        runtime.reset(); while (runtime.seconds() < 0.5) {
+            stay(-88, -34, -90);
+            robot.releasetwo();
         }
-        runtime.reset();
-        while (runtime.seconds() < 1) {
-            stay(0, -3, 0);
-            //setBoxup();
-//            setFlickerclose();
+        runtime.reset(); while (runtime.seconds() < 1) {
+            stay(-88, -34, -90);
+            robot.setlift(400);
         }
-        moveTo(-4, -30, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(2, -26, -90);
-        }
-//        setFlickeropen();
-        //intake.setPower(-0.5);
+        robot.setlift(0); robot.boxdown(); robot.boxintakeready();
 
-        //setlift(500);
-        moveTo(0, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(6, -50, -90);
-        }
-        runtime.reset();
-
-        moveTo(14, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(20, -50, -90);
-        }
-        runtime.reset();
-
-        // pick 1 pixel
-
-        moveTo(-84, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -50, -90);
-        }
-        runtime.reset();
-
-        // check for other robot then go
-
-        moveTo(-84, -33, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -33, -90);
-        }
-        runtime.reset();
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -34, -90);
-        }
-        runtime.reset();
-
-        // Deposit here
-
-
-        STACKDEPOLOOP();
-        STACKDEPOLOOP();
-
-
-//        runtime.reset();
-//        while (runtime.seconds() < 0.5) { // change time to 0.5
-//            stay(-84, -32, -90);
-//        }
-//        runtime.reset();
-
-        moveTo(-84, -47, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -47, -90);
-        }
-        runtime.reset();
-
-        // Parking
-
-        moveTo(-88, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 30) {
-            stay(-89, -49, -90);
-        }
-        runtime.reset();
-
-
-
+        CYCLE();
     }
     public void AUTONOMOUS_B(){
         telemetry.addLine("Autonomous B");
 
-        // pick up purple pixel
-        //deposit.setPosition(1);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(0, -3, 0);
+        //dropping purple pixel
+        moveTo(10, -38, 90, 2);
+        runtime.reset(); while(runtime.seconds() < 1) {stay(10, -38, 90);}
+        runtime.reset(); while(runtime.seconds() < 0.5) {intake.setPower(-0.5);}
+
+        //move to stack and get white pixel
+        moveTo(10, -50, -90, 4);
+        intake.setPower(1); robot.boxintakeready(); robot.intakedown();
+        moveTo(15, -56, -90, 4);
+        runtime.reset(); while (runtime.seconds() < 1) {stay(15, -56, -90);}
+        moveTo(22, -56, -90, 2);
+        moveTo(22, -44, -90, 4);
+        moveTo(22, -56, -90, 4);
+
+        //reset intake arm, lock box, reverse intake
+        robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
+
+        //moving to backdrop
+        MOVETOBACKDROP();
+
+        //move to deposit position
+        runtime.reset(); while (runtime.seconds() < 2) {stay(-85, -29, -90);}
+
+        //deposit
+        runtime.reset(); while (runtime.seconds() < 0.5) {stay(-88, -30, -90);}
+        runtime.reset(); while (runtime.seconds() < 0.5) {
+            stay(-88, -30, -90);
+            robot.releasetwo();
         }
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(0, -3, 0);
-            //setBoxup();
-//            setFlickerclose();
+        runtime.reset(); while (runtime.seconds() < 1) {
+            stay(-88, -30, -90);
+            robot.setlift(400);
         }
+        robot.setlift(0); robot.boxdown(); robot.boxintakeready();
 
-        //move to line and drop purple pixel
-        moveTo(4, -48, 0, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) {
-            stay(4, -36, 0);
-        }
-//        setFlickeropen();
-        //intake.setPower(-0.5);
-
-        moveTo(4, -50, 0, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(6, -50, 0);
-        }
-        runtime.reset();
-
-        moveTo(14, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(20, -50, -90);
-        }
-        runtime.reset();
-
-        // pick 1 pixel
-
-        moveTo(-84, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -50, -90);
-        }
-        runtime.reset();
-
-        // check for other robot then go
-
-        moveTo(-84, -33, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -33, -90);
-        }
-        runtime.reset();
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -30, -90);
-        }
-        runtime.reset();
-
-        // Deposit here
-
-
-        STACKDEPOLOOP();
-        STACKDEPOLOOP();
-
-        // Parking
-//        runtime.reset();
-//        while (runtime.seconds() < 0.5) { // change time to 0.5
-//            stay(-84, -32, -90);
-//        }
-//        runtime.reset();
-
-        moveTo(-84, -47, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -47, -90);
-        }
-        runtime.reset();
-
-
-
-        moveTo(-88, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 30) {
-            stay(-89, -49, -90);
-        }
-        runtime.reset();
-
-
+        CYCLE();
     }
     public void AUTONOMOUS_C(){
         telemetry.addLine("Autonomous C");
-        // pick up purple pixel
-        //deposit.setPosition(1);
-        runtime.reset();
-        while (runtime.seconds() < 1) {
-            stay(0, -3, 0);
+
+        //dropping purple pixel
+        moveTo(4, -26, -180, 2);
+        moveTo(-10, -26, -180, 2);
+        runtime.reset(); while(runtime.seconds() < 1) {stay(-10, -26, -180);}
+        runtime.reset(); while(runtime.seconds() < 0.5) {intake.setPower(-0.5);}
+        moveTo(0, -26, -180, 2);
+
+        //move to stack and get white pixel
+        moveTo(10, -50, -90, 4);
+        intake.setPower(1); robot.boxintakeready(); robot.intakedown();
+        moveTo(15, -56, -90, 4);
+        runtime.reset(); while (runtime.seconds() < 1) {stay(15, -56, -90);}
+        moveTo(22, -56, -90, 2);
+        moveTo(22, -44, -90, 4);
+        moveTo(22, -56, -90, 4);
+
+        //reset intake arm, lock box, reverse intake
+        robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
+
+        //moving to backdrop
+        MOVETOBACKDROP();
+
+        //move to deposit position
+        runtime.reset(); while (runtime.seconds() < 2) {stay(-85, -24, -90);}
+
+        //deposit
+        runtime.reset(); while (runtime.seconds() < 0.5) {stay(-88, -24, -90);}
+        runtime.reset(); while (runtime.seconds() < 0.5) {
+            stay(-88, -24, -90);
+            robot.releasetwo();
         }
-        runtime.reset();
-        while (runtime.seconds() < 1) {
-            stay(0, -3, 0);
-            //setBoxup();
-//            setFlickerclose();
+        runtime.reset(); while (runtime.seconds() < 1) {
+            stay(-88, -24, -90);
+            robot.setlift(400);
         }
+        robot.setlift(0); robot.boxdown(); robot.boxintakeready();
 
-        //move to line and drop purple pixel
-        moveTo(-4, -30, 0, 8);
-        runtime.reset();
-        while (runtime.seconds() < 3) {
-            stay(-4, -30, 90);
-        }
-        runtime.reset();
-
-        // move back
-        moveTo(0, -30, 0, 8);
-        runtime.reset();
-        while (runtime.seconds() < 3) {
-            stay(-0, -30, 90);
-        }
-        runtime.reset();
-
-        moveTo(0, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(6, -50, -90);
-        }
-        runtime.reset();
-
-        moveTo(14, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(20, -50, -90);
-        }
-        runtime.reset();
-
-        // pick 1 pixel
-
-        moveTo(-84, -50, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -50, -90);
-        }
-        runtime.reset();
-
-        // check for other robot then go
-
-        moveTo(-84, -29, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -29, -90);
-        }
-        runtime.reset();
-
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -29, -90);
-        }
-        runtime.reset();
-
-        // Deposit here
-
-
-        STACKDEPOLOOP();
-        STACKDEPOLOOP();
-
-        // Parking
-//        runtime.reset();
-//        while (runtime.seconds() < 0.5) { // change time to 0.5
-//            stay(-84, -27, -90);
-//        }
-//        runtime.reset();
-
-        moveTo(-84, -47, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 0.5) { // change time to 0.5
-            stay(-84, -47, -90);
-        }
-        runtime.reset();
-
-
-        moveTo(-88, -48, -90, 8);
-        runtime.reset();
-        while (runtime.seconds() < 30) {
-            stay(-89, -49, -90);
-        }
-        runtime.reset();
-
+        CYCLE();
     }
-
 }
