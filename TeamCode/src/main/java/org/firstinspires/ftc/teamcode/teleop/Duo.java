@@ -75,7 +75,7 @@ public class Duo extends LinearOpMode {
 
         waitForStart();
 
-
+        launcher.setPosition(0);
         double modifier = 1;
 
         runtime.reset();
@@ -100,6 +100,9 @@ public class Duo extends LinearOpMode {
             bl.setPower(modifier*(y - x + turn));
             br.setPower(modifier*(y + x - turn));
 
+            if (gamepad1.x) {
+                launcher.setPosition(0.5);
+            }
 
             if (gamepad2.right_trigger > 0.1) {
                 intake.setPower(1);

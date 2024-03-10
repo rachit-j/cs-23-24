@@ -76,7 +76,7 @@ public class RobotHardware {
     }
     public void intakeup() {leftintakearm.setPosition(0.73); rightintakearm.setPosition(0.73);}
     public void intakedown(){leftintakearm.setPosition(0.41); rightintakearm.setPosition(0.41);}
-    public void boxup() {leftboxarm.setPosition(0.75); rightboxarm.setPosition(0.75);}
+    public void boxup() {leftboxarm.setPosition(0.77); rightboxarm.setPosition(0.77);}
     public void boxdown() {leftboxarm.setPosition(0.18); rightboxarm.setPosition(0.18);}
     public void releaseone() {mainrelease.setPosition(0.45); auxrelease.setPosition(0.8);}
     public void releasetwo() {mainrelease.setPosition(0.6); auxrelease.setPosition(0.8);}
