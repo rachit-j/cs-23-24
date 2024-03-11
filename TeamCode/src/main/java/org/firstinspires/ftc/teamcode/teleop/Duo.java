@@ -75,7 +75,6 @@ public class Duo extends LinearOpMode {
 
         waitForStart();
 
-        launcher.setPosition(0);
         double modifier = 1;
 
         runtime.reset();
@@ -100,9 +99,7 @@ public class Duo extends LinearOpMode {
             bl.setPower(modifier*(y - x + turn));
             br.setPower(modifier*(y + x - turn));
 
-            if (gamepad1.x) {
-                launcher.setPosition(0.5);
-            }
+            if (gamepad1.x) {launcher.setPosition(0.8);} else launcher.setPosition(0.1);
 
             if (gamepad2.right_trigger > 0.1) {
                 intake.setPower(1);
@@ -142,6 +139,7 @@ public class Duo extends LinearOpMode {
             if (gamepad2.left_stick_y < -0.5) {
                 robot.setlift(leftlift.getCurrentPosition() + 200);
             }
+            if (gamepad2.left_stick_button) {robot.resetlift();}
             if (gamepad2.right_bumper) {
                 robot.releasetwo();
             }
@@ -151,6 +149,9 @@ public class Duo extends LinearOpMode {
             if (gamepad2.x) {
                 robot.boxtransferready();
             }
+//            if (gamepad2.y) {
+//                robot.boxtransferready();
+//            }
         }
     }
 

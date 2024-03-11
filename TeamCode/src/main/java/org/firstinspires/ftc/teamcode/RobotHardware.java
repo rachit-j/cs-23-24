@@ -74,11 +74,26 @@ public class RobotHardware {
         rightlift.setTargetPosition(targetValue);
         backlift.setTargetPosition(targetValue);
     }
+
+    public void resetlift() {
+        leftlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftlift.setTargetPosition(0);
+        rightlift.setTargetPosition(0);
+        backlift.setTargetPosition(0);
+        leftlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backlift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftlift.setPower(1);
+        rightlift.setPower(1);
+        backlift.setPower(1);
+    }
     public void intakeup() {leftintakearm.setPosition(0.73); rightintakearm.setPosition(0.73);}
     public void intakedown(){leftintakearm.setPosition(0.41); rightintakearm.setPosition(0.41);}
     public void boxup() {leftboxarm.setPosition(0.77); rightboxarm.setPosition(0.77);}
     public void boxdown() {leftboxarm.setPosition(0.18); rightboxarm.setPosition(0.18);}
-    public void releaseone() {mainrelease.setPosition(0.45); auxrelease.setPosition(0.8);}
+    public void releaseone() {mainrelease.setPosition(0.55); auxrelease.setPosition(0.8);}
     public void releasetwo() {mainrelease.setPosition(0.6); auxrelease.setPosition(0.8);}
     public void boxtransferready() {mainrelease.setPosition(0.4); auxrelease.setPosition(0);}
     public void boxintakeready() {auxrelease.setPosition(0); mainrelease.setPosition(0.6);}
@@ -87,6 +102,7 @@ public class RobotHardware {
     public void intakethirdpixel() {leftintakearm.setPosition(0.5); rightintakearm.setPosition(0.5);}
     public void intakefourthpixel() {leftintakearm.setPosition(0.47); rightintakearm.setPosition(0.47);}
     public void intakefifthpixel() {leftintakearm.setPosition(0.41); rightintakearm.setPosition(0.41);}
+
 
 
 

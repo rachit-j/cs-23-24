@@ -380,9 +380,9 @@ public class redleft extends LinearOpMode {
         intake.setPower(1); robot.boxintakeready(); robot.intakedown();
         moveTo(15, -56, -90, 4);
         runtime.reset(); while (runtime.seconds() < 0.5) {stay(15, -56, -90);}
-        moveTo(22, -56, -90, 2);
-        moveTo(22, -44, -90, 4);
-        moveTo(22, -56, -90, 4);
+        moveTo(23, -56, -90, 2);
+        moveTo(23, -44, -90, 4);
+        moveTo(23, -56, -90, 4);
 
         //reset intake arm, lock box, reverse intake
         robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
@@ -397,6 +397,7 @@ public class redleft extends LinearOpMode {
         runtime.reset(); while (runtime.seconds() < 0.5) {stay(-88, -34, -90);}
         runtime.reset(); while (runtime.seconds() < 0.5) {
             stay(-88, -34, -90);
+            robot.setlift(100);
             robot.releasetwo();
         }
         runtime.reset(); while (runtime.seconds() < 1) {
@@ -420,9 +421,9 @@ public class redleft extends LinearOpMode {
         intake.setPower(1); robot.boxintakeready(); robot.intakedown();
         moveTo(15, -56, -90, 4);
         runtime.reset(); while (runtime.seconds() < 1) {stay(15, -56, -90);}
-        moveTo(22, -56, -90, 2);
-        moveTo(22, -44, -90, 4);
-        moveTo(22, -56, -90, 4);
+        moveTo(23, -56, -90, 2);
+        moveTo(23, -44, -90, 4);
+        moveTo(23, -56, -90, 4);
 
         //reset intake arm, lock box, reverse intake
         robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
@@ -437,6 +438,7 @@ public class redleft extends LinearOpMode {
         runtime.reset(); while (runtime.seconds() < 0.5) {stay(-88, -30, -90);}
         runtime.reset(); while (runtime.seconds() < 0.5) {
             stay(-88, -30, -90);
+            robot.setlift(100);
             robot.releasetwo();
         }
         runtime.reset(); while (runtime.seconds() < 1) {
@@ -462,9 +464,9 @@ public class redleft extends LinearOpMode {
         intake.setPower(1); robot.boxintakeready(); robot.intakedown();
         moveTo(15, -56, -90, 4);
         runtime.reset(); while (runtime.seconds() < 1) {stay(15, -56, -90);}
-        moveTo(22, -56, -90, 2);
-        moveTo(22, -44, -90, 4);
-        moveTo(22, -56, -90, 4);
+        moveTo(23, -56, -90, 2);
+        moveTo(23, -44, -90, 4);
+        moveTo(23, -56, -90, 4);
 
         //reset intake arm, lock box, reverse intake
         robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
@@ -473,16 +475,17 @@ public class redleft extends LinearOpMode {
         MOVETOBACKDROP();
 
         //move to deposit position
-        runtime.reset(); while (runtime.seconds() < 2) {stay(-85, -24, -90);}
+        runtime.reset(); while (runtime.seconds() < 2) {stay(-85, -23, -90);}
 
         //deposit
-        runtime.reset(); while (runtime.seconds() < 0.5) {stay(-88, -24, -90);}
+        runtime.reset(); while (runtime.seconds() < 0.5) {stay(-88, -23, -90);}
         runtime.reset(); while (runtime.seconds() < 0.5) {
-            stay(-88, -24, -90);
+            stay(-88, -23, -90);
+            robot.setlift(100);
             robot.releasetwo();
         }
         runtime.reset(); while (runtime.seconds() < 1) {
-            stay(-88, -24, -90);
+            stay(-88, -23, -90);
             robot.setlift(400);
         }
         robot.setlift(0); robot.boxdown(); robot.boxintakeready();

@@ -327,11 +327,11 @@ public class blueright extends LinearOpMode {
         //move to stack and get 2 white pixels
         moveTo(80, -50, 90, 8);
         intake.setPower(1); robot.boxintakeready(); robot.intakedown();
-        moveTo(-15, -56, 90, 4);
+        moveTo(-15, -53, 90, 4);
         runtime.reset(); while (runtime.seconds() < 1) {stay(-15, -56, 90);}
-        moveTo(-22, -56, 90, 2);
+        moveTo(-22, -53, 90, 2);
         moveTo(-22, -38, 90, 4);
-        moveTo(-22, -56, 90, 4);
+        moveTo(-22, -53, 90, 4);
 
         //reset intake arm, lock box, reverse intake
         robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
@@ -378,11 +378,11 @@ public class blueright extends LinearOpMode {
         //move to stack and get white pixel
         moveTo(0, -50, 90, 4);
         intake.setPower(1); robot.boxintakeready(); robot.intakedown();
-        moveTo(-15, -56, 90, 4);
+        moveTo(-15, -54, 90, 4);
         runtime.reset(); while (runtime.seconds() < 0.5) {stay(-15, -56, 90);}
-        moveTo(-22, -56, 90, 2);
-        moveTo(-22, -44, 90, 4);
-        moveTo(-22, -56, 90, 4);
+        moveTo(-22, -54, 90, 2);
+        moveTo(-22, -40, 90, 4);
+        moveTo(-22, -54, 90, 4);
 
         //reset intake arm, lock box, reverse intake
         robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
@@ -396,11 +396,11 @@ public class blueright extends LinearOpMode {
         //deposit
         runtime.reset(); while (runtime.seconds() < 0.5) {stay(88, -34, 90);}
         runtime.reset(); while (runtime.seconds() < 0.5) {
-            stay(88, -34, 90);
+            stay(89, -34, 90);
             robot.releasetwo();
         }
         runtime.reset(); while (runtime.seconds() < 1) {
-            stay(88, -34, 90);
+            stay(89, -34, 90);
             robot.setlift(400);
         }
         robot.setlift(0); robot.boxdown(); robot.boxintakeready();
@@ -418,11 +418,11 @@ public class blueright extends LinearOpMode {
         //move to stack and get white pixel
         moveTo(-10, -50, 90, 4);
         intake.setPower(1); robot.boxintakeready(); robot.intakedown();
-        moveTo(-15, -56, 90, 4);
+        moveTo(-15, -54, 90, 4);
         runtime.reset(); while (runtime.seconds() < 1) {stay(-15, -56, 90);}
-        moveTo(-22, -56, 90, 2);
-        moveTo(-22, -44, 90, 4);
-        moveTo(-22, -56, 90, 4);
+        moveTo(-22, -54, 90, 2);
+        moveTo(-22, -40, 90, 4);
+        moveTo(-22, -54, 90, 4);
 
         //reset intake arm, lock box, reverse intake
         robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
@@ -434,13 +434,13 @@ public class blueright extends LinearOpMode {
         runtime.reset(); while (runtime.seconds() < 2) {stay(85, -29, 90);}
 
         //deposit
-        runtime.reset(); while (runtime.seconds() < 0.5) {stay(88, -30, 90);}
+        runtime.reset(); while (runtime.seconds() < 0.5) {stay(88.5, -30, 90);}
         runtime.reset(); while (runtime.seconds() < 0.5) {
-            stay(88, -30, 90);
+            stay(89, -30, 90);
             robot.releasetwo();
         }
         runtime.reset(); while (runtime.seconds() < 1) {
-            stay(88, -30, 90);
+            stay(89, -30, 90);
             robot.setlift(400);
         }
         robot.setlift(0); robot.boxdown(); robot.boxintakeready();
@@ -460,11 +460,11 @@ public class blueright extends LinearOpMode {
         //move to stack and get white pixel
         moveTo(-10, -50, 90, 4);
         intake.setPower(1); robot.boxintakeready(); robot.intakedown();
-        moveTo(-15, -56, 90, 4);
+        moveTo(-15, -54, 90, 4);
         runtime.reset(); while (runtime.seconds() < 1) {stay(-15, -56, 90);}
-        moveTo(-22, -56, 90, 2);
-        moveTo(-22, -44, 90, 4);
-        moveTo(-22, -56, 90, 4);
+        moveTo(-23, -54, 90, 2);
+        moveTo(-23, -40, 90, 4);
+        moveTo(-23, -54, 90, 4);
 
         //reset intake arm, lock box, reverse intake
         robot.intakeup(); robot.boxtransferready(); intake.setPower(-1);
@@ -473,16 +473,16 @@ public class blueright extends LinearOpMode {
         MOVETOBACKDROP();
 
         //move to deposit position
-        runtime.reset(); while (runtime.seconds() < 2) {stay(85, -24, 90);}
+        runtime.reset(); while (runtime.seconds() < 2) {stay(85, -23, 90);}
 
         //deposit
-        runtime.reset(); while (runtime.seconds() < 0.5) {stay(88, -24, 90);}
+        runtime.reset(); while (runtime.seconds() < 0.5) {stay(88, -23, 90);}
         runtime.reset(); while (runtime.seconds() < 0.5) {
-            stay(88, -24, 90);
+            stay(89, -23, 90);
             robot.releasetwo();
         }
         runtime.reset(); while (runtime.seconds() < 1) {
-            stay(88, -24, 90);
+            stay(89, -23, 90);
             robot.setlift(400);
         }
         robot.setlift(0); robot.boxdown(); robot.boxintakeready();
